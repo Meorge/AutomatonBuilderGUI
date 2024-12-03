@@ -9,6 +9,7 @@ import { GrGrid } from "react-icons/gr";
 import ConfirmationDialog from './ConfirmationDialog';
 import { FaRegImage } from "react-icons/fa6";
 import { BiFileBlank, BiReset} from "react-icons/bi";
+import { MdOutlineFitScreen } from "react-icons/md";
 
 import { ClosableModalWindow } from './ModalWindow';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -96,6 +97,8 @@ export default function Toolbox(props: React.PropsWithChildren<ToolboxProps>) {
             <ActionButton onClick={handleLoadButtonClick} icon={<BsUpload />} title="Load from JSON" bgColor="bg-amber-500"></ActionButton>
             {/* Reset Zoom Button */}
             <ActionButton onClick={StateManager.resetZoom} icon={<TbZoomReset />} title="Reset Zoom" bgColor="bg-blue-500"></ActionButton>
+            {/* Fit Automaton on Screen Button */}
+            <ActionButton onClick={StateManager.fitAutomatonOnScreen} icon={<MdOutlineFitScreen />} title="Fit Automaton on Screen" bgColor="bg-blue-500"></ActionButton>
             {/* Center Stage Button */}
             <ActionButton onClick={StateManager.centerStage} icon={<BiReset />} title="Center Stage" bgColor="bg-green-500"></ActionButton>
             {/* Zoom In Button */}
