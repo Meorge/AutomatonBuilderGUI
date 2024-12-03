@@ -276,7 +276,7 @@ export default class StateManager {
 
 
     //diagram bounds to know which exact part of the canvas to export
-    private static getDiagramBounds(leftPadding=150, bottomPadding=150, rightPadding=150, topPadding=150) {
+    private static getDiagramBounds(leftPadding: number = 150, bottomPadding: number = 150, rightPadding: number = 150, topPadding: number = 150) {
         if (!StateManager._nodeWrappers.length && !StateManager._transitionWrappers.length) {
             return { x: 0, y: 0, width: 0, height: 0 };
         }
@@ -1564,22 +1564,22 @@ export default class StateManager {
      * Finds the bounding box of the automaton
      * and scrolls/zooms the screen to it
      */
-        public static fitAutomatonOnScreen() {
-            const bounds = StateManager.getDiagramBounds(StateManager._stage.width()/3, 50, 50, 50);
-            // Based on window size, the smaller scalar is what we need to be scale the zoom by, and then add some padding
+    public static fitAutomatonOnScreen() {
+        const bounds = StateManager.getDiagramBounds(StateManager._stage.width()/3, 50, 50, 50);
+        // Based on window size, the smaller scalar is what we need to be scale the zoom by, and then add some padding
 
-            let scale = Math.min(StateManager._stage.width() / bounds.width, StateManager._stage.height() / bounds.height);
-            const boxCenterX = bounds.x + bounds.width / 2;
-            const boxCenterY = bounds.y + bounds.height / 2;
-            // finally, apply the zoom and center it in the center of the bounding box
-            StateManager._stage.scale({ x: scale, y: scale });
-            StateManager._stage.position({
-                x: (StateManager._stage.width() / 2) - (boxCenterX * scale),
-                y: (StateManager._stage.height() / 2) - (boxCenterY * scale)
-            });
-            StateManager._stage.batchDraw();
-            StateManager.drawGrid();
-        }
+        let scale = Math.min(StateManager._stage.width() / bounds.width, StateManager._stage.height() / bounds.height);
+        const boxCenterX = bounds.x + bounds.width / 2;
+        const boxCenterY = bounds.y + bounds.height / 2;
+        // finally, apply the zoom and center it in the center of the bounding box
+        StateManager._stage.scale({ x: scale, y: scale });
+        StateManager._stage.position({
+            x: (StateManager._stage.width() / 2) - (boxCenterX * scale),
+            y: (StateManager._stage.height() / 2) - (boxCenterY * scale)
+        });
+        StateManager._stage.batchDraw();
+        StateManager.drawGrid();
+    }
 
     /**
      * Clear out the automaton and alphabet
