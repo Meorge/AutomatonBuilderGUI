@@ -1,7 +1,7 @@
 interface ModalWindowListItemProps {
-    title: string,
-    subtitle?: string | undefined,
-    rightContent?: JSX.Element | undefined
+  title: string;
+  subtitle?: string | undefined;
+  rightContent?: JSX.Element | undefined;
 }
 
 /**
@@ -11,11 +11,11 @@ interface ModalWindowListItemProps {
  * @param {React.ReactNode | undefined} props.children The content to place within the list item.
  */
 export function CoreListItem(props: React.PropsWithChildren) {
-    return (
-        <div className="flow-root bg-white dark:bg-gray-600 p-2 px-2 first:rounded-t-lg last:rounded-b-lg">
-            {props.children}
-        </div>
-    );
+  return (
+    <div className="flow-root bg-white dark:bg-gray-600 p-2 px-2 first:rounded-t-lg last:rounded-b-lg">
+      {props.children}
+    </div>
+  );
 }
 
 /**
@@ -25,11 +25,7 @@ export function CoreListItem(props: React.PropsWithChildren) {
  * @param {React.ReactNode | undefined} props.children The content to place within the list item.
  */
 export function CoreListItem_Left(props: React.PropsWithChildren) {
-    return (
-        <div className="float-left align-middle ml-1">
-            {props.children}
-        </div>
-    );
+  return <div className="float-left align-middle ml-1">{props.children}</div>;
 }
 
 /**
@@ -39,11 +35,7 @@ export function CoreListItem_Left(props: React.PropsWithChildren) {
  * @param {React.ReactNode | undefined} props.children The content to place within the list item.
  */
 export function CoreListItem_Right(props: React.PropsWithChildren) {
-    return (
-        <div className="float-right align-middle mr-1">
-            {props.children}
-        </div>
-    );
+  return <div className="float-right align-middle mr-1">{props.children}</div>;
 }
 
 /**
@@ -53,18 +45,18 @@ export function CoreListItem_Right(props: React.PropsWithChildren) {
  * @param {string=} props.subtitle A subtitle to display, underneath the title.
  * @param {JSX.Element | undefined} props.rightContent An element to display to on the right-hand side of the list item.
  */
-export function ListItem(props: React.PropsWithChildren<ModalWindowListItemProps>) {
-    return (
-        <CoreListItem>
-            <CoreListItem_Left>
-                {props.title}
-                <div className="text-sm text-gray-600 dark:text-gray-300">
-                    {props.subtitle}
-                </div>
-            </CoreListItem_Left>
-            <CoreListItem_Right>
-                {props.rightContent}
-            </CoreListItem_Right>
-        </CoreListItem>
-    );
+export function ListItem(
+  props: React.PropsWithChildren<ModalWindowListItemProps>,
+) {
+  return (
+    <CoreListItem>
+      <CoreListItem_Left>
+        {props.title}
+        <div className="text-sm text-gray-600 dark:text-gray-300">
+          {props.subtitle}
+        </div>
+      </CoreListItem_Left>
+      <CoreListItem_Right>{props.rightContent}</CoreListItem_Right>
+    </CoreListItem>
+  );
 }

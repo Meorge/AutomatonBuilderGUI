@@ -1,6 +1,6 @@
 /**
  * The different kinds of tools that can be used.
- * 
+ *
  * - `States` - Double-clicking the canvas adds a new node to the automaton.
  * - `Transitions` - Dragging off of a node and onto another node creates
  * a transition between those nodes.
@@ -12,5 +12,5 @@ export enum Tool {
   States,
   Transitions,
   SetAccept,
-  Select
+  Select,
 }
