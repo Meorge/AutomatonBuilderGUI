@@ -24,7 +24,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "automaton-kit": "github:Meorge/automaton-ts",
+    "automaton-kit": "github:AutomatonBuilderGUI/automaton-ts",
     "cpy": "^11.0.0",
     "framer-motion": "^11.3.31",
     "konva": "^9.2.0",
