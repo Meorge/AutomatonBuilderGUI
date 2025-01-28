@@ -56,20 +56,47 @@ export default function Toolbox(props: React.PropsWithChildren<ToolboxProps>) {
     const handleLoadButtonClick = () => {
         fileInputRef.current?.click(); // Programmatically click the hidden file input
     };
-    const [isDialogVisible, setIsDialogVisible] = useState(false);
 
-  const handleClearMachineClick = () => {
-    setIsDialogVisible(true);
-  };
+    // functions to handle the clear confierm window popup
+    const [isClearDialogVisible, setIsClearDialogVisible] = useState(false);
 
-  const handleConfirm = () => {
+    const handleClearMachineClick = () => {
+    setIsClearDialogVisible(true);
+    };
+
+    const handleClearConfirm = () => {
     StateManager.clearMachine();
-    setIsDialogVisible(false);
-  };
+    setIsClearDialogVisible(false);
+    };
 
-  const handleCancel = () => {
-    setIsDialogVisible(false);
-  };
+    const handleClearCancel = () => {
+    setIsClearDialogVisible(false);
+    };
+    // functions to handle the unsaved file popups
+const [isUnsavedDialogVisible, setIsUnsavedDialogVisible] = useState(false);
+
+const handleUnsavedChangesClick = () => {
+    // If its still clean then dont open the window to ask.
+    if (StateManager.cleanState()){
+        handleLoadButtonClick();
+    }
+    else{
+        setIsUnsavedDialogVisible(true);
+    }
+};
+
+const handleUnsavedConfirm = () => {
+  setIsUnsavedDialogVisible(false);
+  handleLoadButtonClick();
+};
+
+const handleUnsavedCancel = () => {
+  setIsUnsavedDialogVisible(false);
+};
+
+
+
+  
 
     return (
         <>
@@ -94,7 +121,7 @@ export default function Toolbox(props: React.PropsWithChildren<ToolboxProps>) {
             <ActionButton onClick={handleToggleSnap} icon={<GrGrid />} title={isSnapActive ? 'Disable Snap to Grid' : 'Enable Snap to Grid'} bgColor={isSnapActive ? 'bg-fuchsia-800' : 'bg-fuchsia-500'} ></ActionButton>
             <ActionButton onClick={StateManager.downloadJSON} icon={<BsDownload />} title="Download from JSON" bgColor="bg-amber-500"></ActionButton>
             <input type='file' id='file-uploader' ref={fileInputRef} style={{ display: 'none' }} onChange={StateManager.uploadJSON} />
-            <ActionButton onClick={handleLoadButtonClick} icon={<BsUpload />} title="Load from JSON" bgColor="bg-amber-500"></ActionButton>
+            <ActionButton onClick={handleUnsavedChangesClick} icon={<BsUpload />} title="Load from JSON" bgColor="bg-amber-500"></ActionButton>
             {/* Reset Zoom Button */}
             <ActionButton onClick={StateManager.resetZoom} icon={<TbZoomReset />} title="Reset Zoom" bgColor="bg-blue-500"></ActionButton>
             {/* Fit Automaton on Screen Button */}
@@ -117,15 +144,25 @@ export default function Toolbox(props: React.PropsWithChildren<ToolboxProps>) {
             {/* Export Button */}
             <ActionButton onClick={StateManager.exportAutomatonToImage} icon={<FaRegImage />} title="Export Automaton to PNG" bgColor="bg-teal-500" margin="m-10"/>
         </div>
-        
-        {isDialogVisible&&(
+        {/* Window for clear button */}
+        {isClearDialogVisible&&(
         <ConfirmationDialog
-        onConfirm={handleConfirm}
-        onCancel={handleCancel}
+        onConfirm={handleClearConfirm}
+        onCancel={handleClearCancel}
         message="Are you sure you want to clear the machine?"
         
                 />
             )}
+        {/* Window for unsaved changes prompt*/}
+        {isUnsavedDialogVisible&&(
+        <ConfirmationDialog
+        onConfirm={handleUnsavedConfirm}
+        onCancel={handleUnsavedCancel}
+        message="There are unsaved changes to the current file, do you still want to load a new file?"
+        
+                />
+            )}
+
             
 
         </>
