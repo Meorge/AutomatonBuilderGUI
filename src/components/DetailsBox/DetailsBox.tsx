@@ -13,13 +13,13 @@ interface DetailsBoxProps {
 
 /**
  * Displays editors for each selected item in the left-hand panel.
- * @param props 
+ * @param props
  * @param {Array<SelectableObject>} selection An array of the currently-selected
  * objects.
  * @param {NodeWrapper} startNode The node currently selected as the start node.
  * @param {React.Dispatch<React.SetStateAction<NodeWrapper>>} setStartNode A function
  * to call for setting the start node to another node.
- * @returns 
+ * @returns
  */
 export default function DetailsBox(props: DetailsBoxProps) {
   // For each item selected display its corresponding editor
@@ -42,7 +42,11 @@ export default function DetailsBox(props: DetailsBoxProps) {
   return (
     <div className="details-box flex flex-col h-min">
       <div className="flex-1 overflow-auto">
-        {selectionElements.length > 0 ? selectionElements : <DetailsBox_NoSelection />}
+        {selectionElements.length > 0 ? (
+          selectionElements
+        ) : (
+          <DetailsBox_NoSelection />
+        )}
       </div>
     </div>
   );
