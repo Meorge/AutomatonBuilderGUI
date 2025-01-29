@@ -86,6 +86,9 @@ export default class StateManager {
     /** Whether or not to snap nodes to the grid. */
     private static _snapToGridEnabled: boolean = false;
 
+    /** Keeps track of the current file to see if it has had changes without saves. */
+    private static clean:boolean =true;
+
     /** Returns UI configuration information for the current color scheme. */
     public static get colorScheme() {
         if (this._useDarkMode) {
@@ -98,6 +101,20 @@ export default class StateManager {
 
     private constructor() {
     }
+    /** Marks the file as dirty. */
+    public static makeDirty() {
+        StateManager.clean=false;
+    }
+    /** Marks the file as clean. */
+    public static makeClean() {
+        StateManager.clean=true;
+    }
+
+    /** Returns the the curent clean state of the file */
+    public static cleanState() {
+        return StateManager.clean;
+    }
+    
 
     /** Toggles whether or not nodes snap to the grid. */
     public static toggleSnapToGrid() {
@@ -179,6 +196,7 @@ export default class StateManager {
 
         addEventListener('keydown', this.onKeyDown);
         addEventListener('resize', this.handleResize);
+        StateManager.makeClean();
     }
 
     /** Gets the array of transitions for the automaton. */
@@ -398,6 +416,7 @@ export default class StateManager {
     private static onDoubleClick(evt: Konva.KonvaEventObject<MouseEvent>) {
         if (StateManager.currentTool == Tool.States) {
             StateManager.addStateAtDoubleClickPos(evt);
+            
 
         }
     }
@@ -518,7 +537,6 @@ export default class StateManager {
             });
             StateManager.updateTransitions();
         };
-
         let removeNodeAction = new Action(
             "removeNode",
             `Delete Node "${node.labelText}"`,
@@ -536,16 +554,18 @@ export default class StateManager {
      * @param newName The new name to give to the node.
      */
     public static setNodeName(node: NodeWrapper, newName: string) {
+        
         let oldName = node.labelText;
 
         let setNodeNameForward = (data: SetNodeNameActionData) => {
+            
             data.node.labelText = data.newName;
         };
 
         let setNodeNameBackward = (data: SetNodeNameActionData) => {
+            
             data.node.labelText = data.oldName;
         };
-
         let setNodeNameAction = new Action(
             "setNodeName",
             `Rename "${oldName}" To "${newName}"`,
@@ -572,7 +592,6 @@ export default class StateManager {
         let setNodeIsAcceptBackward = (data: SetNodeIsAcceptActionData) => {
             data.node.isAcceptNode = data.oldValue;
         };
-
         let setNodeIsAcceptAction = new Action(
             "setNodeIsAccept",
             `Mark "${node.labelText}" as ${isAccept ? 'Accepting' : 'Rejecting'}`,
@@ -598,7 +617,6 @@ export default class StateManager {
         let setNodeIsStartBackward = (data: SetNodeIsStartActionData) => {
             StateManager.startNode = data.oldStart;
         };
-
         let setNodeIsStartAction = new Action(
             "setNodeIsStart",
             `Set "${node?.labelText ?? 'none'}" As Initial Node`,
@@ -607,6 +625,9 @@ export default class StateManager {
             { 'oldStart': oldStart, 'newStart': node }
         );
         UndoRedoManager.pushAction(setNodeIsStartAction);
+        // Makes it clean to start after the inital node.
+        StateManager.makeClean();
+
     }
 
     /** Sets the automaton's start node.
@@ -616,6 +637,7 @@ export default class StateManager {
      * `StateManager.setNodeIsStart` method instead.
      */
     public static set startNode(node: NodeWrapper | null) {
+        
         if (StateManager._startNode) {
             StateManager._startNode.nodeGroup.off('move.startstate');
         }
@@ -806,7 +828,6 @@ export default class StateManager {
             StateManager._transitionLayer?.draw();
             StateManager.updateTransitions();
         };
-
         let pasteAction = new Action(
             "pasteClipboardObjects",
             actionDescription,
@@ -1693,6 +1714,9 @@ export default class StateManager {
      * user's device.
      */
     public static downloadJSON() {
+
+        StateManager.makeClean();
+
         const jsonString = JSON.stringify(StateManager.toSerializable(), null, 4);
 
         // A hacky solution in my opinion, but apparently it works so hey.
@@ -1733,6 +1757,7 @@ export default class StateManager {
         const { states, alphabet, transitions, startState, acceptStates } = json;
 
         StateManager.clearMachine();
+        StateManager.makeClean();
 
         // Load each state
         states.forEach(state => {
@@ -1786,6 +1811,7 @@ export default class StateManager {
 
     /** Sets whether or not dark mode is enabled. */
     public static set useDarkMode(val: boolean) {
+        StateManager.makeClean();
         // Save new value
         this._useDarkMode = val;
 

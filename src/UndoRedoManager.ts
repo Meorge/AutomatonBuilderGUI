@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import StateManager from './StateManager';
 
 export default class UndoRedoManager {
     // The stack we push actions onto and pop off.
@@ -15,6 +16,8 @@ export default class UndoRedoManager {
     private static _listeners: Set<() => void> = new Set<() => void>();
 
     public static pushAction(action: Action, performForward: boolean = true) {
+        // If we got here then some kind of change happened so mark it as dirty.
+        StateManager.makeDirty();
         if (this._stackLocation == this._stack.length - 1) {
             // We are at the top of the stack, so we can
             // just add this new action to the top.
@@ -39,6 +42,7 @@ export default class UndoRedoManager {
     }
 
     public static redo() {
+        StateManager.makeDirty();
         if (this._stackLocation == this._stack.length - 1) {
             console.error("Can't redo because we're at the top of the stack");
             return;
@@ -49,6 +53,7 @@ export default class UndoRedoManager {
     }
 
     public static undo() {
+        StateManager.makeDirty();
         if (this._stackLocation == -1) {
             console.error("Can't undo because the stack is empty");
             return;
