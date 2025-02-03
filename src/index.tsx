@@ -19,6 +19,7 @@ import DetailsBox_ActionStackViewer from "./components/DetailsBox/DetailsBox_Act
 import { motion, AnimatePresence } from "framer-motion";
 import AutomatonElementError from "../node_modules/automaton-kit/lib/errors/AutomatonElementError";
 import NodeWrapper from "./NodeWrapper";
+import { useActionStack } from "./utilities/ActionStackUtilities";
 
 function App() {
   const [currentTool, setCurrentTool] = useState(Tool.States);
@@ -27,6 +28,7 @@ function App() {
   );
   const [startNode, setStartNode] = useState(StateManager.startNode);
   const [isLabelUnique, setIsLabelUnique] = useState(true);
+  const [_, currentStackLocation] = useActionStack();
 
   // Adds the "confirm close" modal when attempting to close the page.
   // Solution from this stackoverflow page:
@@ -151,6 +153,12 @@ function App() {
   let dfa = StateManager.dfa;
   let dfaErrors = dfa.getErrors();
 
+  // If the current stack location is changed, update the DFA and get errors again
+  useEffect(() => {
+    dfa = StateManager.dfa;
+    dfaErrors = dfa.getErrors();
+  }, [currentStackLocation]);
+  
   let errorBoxes = dfaErrors.map((err) => {
     return (
       <div key={err.errorString()}>
