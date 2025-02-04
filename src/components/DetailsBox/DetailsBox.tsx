@@ -26,13 +26,18 @@ export default function DetailsBox(props: DetailsBoxProps) {
   const selectedNodes = props.selection.filter(item => item instanceof NodeWrapper) as NodeWrapper[];
   const selectedTransitions = props.selection.filter(item => item instanceof TransitionWrapper) as TransitionWrapper[];
 
-  // display a transition editor for each selected transition
-  let selectionElements = selectedTransitions.map((item, index) => {
-    if (item instanceof TransitionWrapper) {
-      return <DetailsBox_TransitionSelection key={item.id} transition={item} />;
-    }
-    return <div key={`unhandled-${index}`}>Unhandled item type</div>;
-  });
+  let selectionElements = [];
+
+  // display a transition editor if at least transition is selected
+  if (selectedTransitions.length > 0) {
+    const combinedKey = selectedTransitions.map(t => t.id).join('-');
+    selectionElements.push(
+      <DetailsBox_TransitionSelection
+        key={combinedKey}
+        transitions={selectedTransitions}
+      />
+    )
+  }
 
   // display a node editor if at least node is selected
   if (selectedNodes.length > 0) {
