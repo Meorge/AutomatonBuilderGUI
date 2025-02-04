@@ -6,20 +6,20 @@ import { useActionStack } from "../../utilities/ActionStackUtilities";
 import { ListItem } from "../ListItem";
 
 interface DetailsBox_TransitionSelectionProps {
-  transition: TransitionWrapper;
+  transitions: TransitionWrapper[];
 }
 
 interface DetailsBox_TransitionTokenCheckBoxProps {
-  transition: TransitionWrapper;
+  transitions: TransitionWrapper[];
   token: TokenWrapper;
 }
 
 /**
  * Creates a list item representing a single token's relationship to the given
- * transition. If the checkbox is checked, then the transition will accept the
+ * transition(s). If the checkbox is checked, then the transition(s) will accept the
  * token.
  * @param props
- * @param {TransitionWrapper} props.transition The transition that this list
+ * @param {TransitionWrapper[]} props.transitions The transition(s) that this list
  * item corresponds to.
  * @param {TokenWrapper} props.token The token that this list item corresponds to.
  * @returns
@@ -28,25 +28,36 @@ function DetailsBox_TransitionTokenCheckBox(
   props: DetailsBox_TransitionTokenCheckBoxProps,
 ) {
   const token = props.token;
-  const transition = props.transition;
+  const transitions = props.transitions;
+
+  const allInclude = transitions.every(t => t.hasToken(token));
+  const noneInclude = transitions.every(t => !t.hasToken(token));
 
   const [tokenIsIncluded, setTokenIsIncluded] = useState(
-    transition.hasToken(token),
+    noneInclude ? false : (allInclude || undefined),
   );
 
   let updateTokenIsIncluded = (isIncluded: boolean) => {
     setTokenIsIncluded(isIncluded);
 
     if (isIncluded) {
-      StateManager.setTransitionAcceptsToken(transition, token);
+      transitions.forEach(t => {
+        if (t.hasToken(token)) 
+          return;
+        StateManager.setTransitionAcceptsToken(t, token);
+      });
     } else {
-      StateManager.setTransitionDoesntAcceptToken(transition, token);
+      transitions.forEach(t => {
+        if (!t.hasToken(token)) 
+          return;
+        StateManager.setTransitionDoesntAcceptToken(t, token);
+      });
     }
   };
 
   const [_, currentStackLocation] = useActionStack();
   useEffect(() => {
-    setTokenIsIncluded(transition.hasToken(token));
+    setTokenIsIncluded(noneInclude ? false : (allInclude || undefined));
   }, [currentStackLocation]);
 
   let transitionUseTokenInput = (
@@ -55,6 +66,11 @@ function DetailsBox_TransitionTokenCheckBox(
       id="is-epsilon-transition"
       name="is-epsilon-transition"
       checked={tokenIsIncluded}
+      ref={input => {
+        if (input) {
+          input.indeterminate = tokenIsIncluded === undefined;
+        }
+      }}
       onChange={(e) => updateTokenIsIncluded(e.target.checked)}
     ></input>
   );
@@ -69,31 +85,44 @@ function DetailsBox_TransitionTokenCheckBox(
 }
 
 /**
- * Creates the UI for enabling and disabling tokens for a given transition.
+ * Creates the UI for enabling and disabling tokens for a given transition(s).
  * @param props
- * @param {TransitionWrapper} props.transition The transition that this editor
+ * @param {TransitionWrapper[]} props.transitios The transition(s) that this editor
  * will modify.
  * @returns
  */
 export default function DetailsBox_TransitionSelection(
   props: DetailsBox_TransitionSelectionProps,
 ) {
-  const tw = props.transition;
+  const tws = props.transitions;
 
-  const srcNode = tw.sourceNode;
-  const dstNode = tw.destNode;
+  const srcNode = tws[0].sourceNode;
+  const dstNode = tws[0].destNode;
+
+  const isMultiSelection = tws.length > 1;
+
+  const allEpsilon = tws.every(t => t.isEpsilonTransition);
+  const noneEpsilon = tws.every(t => !t.isEpsilonTransition);
 
   // Epsilon transitions are handled separately from individual tokens.
   const [isEpsilonTransition, setEpsilonTransition] = useState(
-    tw.isEpsilonTransition,
+    noneEpsilon ? false : (allEpsilon || undefined),
   );
   let updateIsEpsilonTransition = (isEpsilon: boolean) => {
     setEpsilonTransition(isEpsilon);
 
     if (isEpsilon) {
-      StateManager.setTransitionAcceptsEpsilon(tw);
+      tws.forEach(t => {
+        if (t.isEpsilonTransition)
+          return;
+        StateManager.setTransitionAcceptsEpsilon(t);
+      });
     } else {
-      StateManager.setTransitionDoesntAcceptEpsilon(tw);
+      tws.forEach(t => {
+        if (!t.isEpsilonTransition)
+          return;
+        StateManager.setTransitionDoesntAcceptEpsilon(t);
+      });
     }
   };
 
@@ -103,6 +132,11 @@ export default function DetailsBox_TransitionSelection(
       id="is-epsilon-transition"
       name="is-epsilon-transition"
       checked={isEpsilonTransition}
+      ref={input => {
+        if (input) {
+          input.indeterminate = isEpsilonTransition === undefined;
+        }
+      }}
       onChange={(e) => updateIsEpsilonTransition(e.target.checked)}
     ></input>
   );
@@ -111,20 +145,20 @@ export default function DetailsBox_TransitionSelection(
   // update the UI to correctly reflect the current state.
   const [_, currentStackLocation] = useActionStack();
   useEffect(() => {
-    setEpsilonTransition(tw.isEpsilonTransition);
+    setEpsilonTransition(noneEpsilon ? false : (allEpsilon || undefined));
   }, [currentStackLocation]);
 
   return (
     <div className="flex flex-col">
-      <div className="font-medium text-2xl">Transition</div>
-      <div>
+      <div className="font-medium text-2xl">{isMultiSelection ? "Transitions" : "Transition"}</div>
+      {!isMultiSelection && <div>
         {srcNode.labelText} to {dstNode.labelText}
-      </div>
+      </div>}
       <div className="mt-3 ml-1 mb-1 text-left">Accepted Tokens</div>
       <div className="divide-y mb-3">
         <ListItem title="ε" rightContent={transitionUseEpsilonInput} />
         {StateManager.alphabet.map((token) => (
-          <DetailsBox_TransitionTokenCheckBox transition={tw} token={token} />
+          <DetailsBox_TransitionTokenCheckBox transitions={tws} token={token} />
         ))}
       </div>
     </div>
