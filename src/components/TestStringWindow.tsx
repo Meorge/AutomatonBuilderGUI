@@ -8,14 +8,10 @@ export default function TestStringWindow() {
   const [testString, setTestString] = useState("");
   const [result, setResult] = useState("");
   const [isError, setIsError] = useState(false);
-  const [isEmpty, setIsEmpty] = useState(false);
 
   useEffect(() => {
-    if (!isEmpty && (result === "Rejected" || result === "Accepted")) {
-      setResult("");
-      setIsEmpty(true);
-    } else setIsEmpty(false);
-  }, [StateManager.dfa.states.length]);
+    if (result === "Rejected" || result === "Accepted") setResult("");
+  }, [JSON.stringify(StateManager.dfa)]);
 
   const errorMessages = [
     "Invalid DFA",
