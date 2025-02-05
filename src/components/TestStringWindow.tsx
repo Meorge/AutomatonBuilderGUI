@@ -1,12 +1,23 @@
-import { SetStateAction, useState } from "react";
+import { SetStateAction, useState, useEffect } from "react";
 import { testStringOnAutomata } from "./TestStringOnAutomata";
 import { BsFillClipboardCheckFill } from "react-icons/bs";
 import InformationBox, { InformationBoxType } from './InformationBox';
+import StateManager from '../StateManager';
 
 export default function TestStringWindow() {
     const [testString, setTestString] = useState('');
     const [result, setResult] = useState('');
     const [isError, setIsError] = useState(false);
+    const [isEmpty, setIsEmpty] = useState(false);
+
+    useEffect(() => {
+        if (!isEmpty && ( result === 'Rejected' || result === 'Accepted' )) {
+            setResult('');
+            setIsEmpty(true);
+        } 
+        else
+            setIsEmpty(false);
+    }, [StateManager.dfa.states.length]);
 
     const errorMessages = [
         'Invalid DFA',
