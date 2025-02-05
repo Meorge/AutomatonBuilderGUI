@@ -30,26 +30,24 @@ function DetailsBox_TransitionTokenCheckBox(
   const token = props.token;
   const transitions = props.transitions;
 
-  const allInclude = transitions.every(t => t.hasToken(token));
-  const noneInclude = transitions.every(t => !t.hasToken(token));
+  const allInclude = transitions.every((t) => t.hasToken(token));
+  const noneInclude = transitions.every((t) => !t.hasToken(token));
 
   const [tokenIsIncluded, setTokenIsIncluded] = useState(
-    noneInclude ? false : (allInclude || undefined),
+    noneInclude ? false : allInclude || undefined,
   );
 
   let updateTokenIsIncluded = (isIncluded: boolean) => {
     setTokenIsIncluded(isIncluded);
 
     if (isIncluded) {
-      transitions.forEach(t => {
-        if (t.hasToken(token)) 
-          return;
+      transitions.forEach((t) => {
+        if (t.hasToken(token)) return;
         StateManager.setTransitionAcceptsToken(t, token);
       });
     } else {
-      transitions.forEach(t => {
-        if (!t.hasToken(token)) 
-          return;
+      transitions.forEach((t) => {
+        if (!t.hasToken(token)) return;
         StateManager.setTransitionDoesntAcceptToken(t, token);
       });
     }
@@ -57,7 +55,7 @@ function DetailsBox_TransitionTokenCheckBox(
 
   const [_, currentStackLocation] = useActionStack();
   useEffect(() => {
-    setTokenIsIncluded(noneInclude ? false : (allInclude || undefined));
+    setTokenIsIncluded(noneInclude ? false : allInclude || undefined);
   }, [currentStackLocation]);
 
   let transitionUseTokenInput = (
@@ -66,7 +64,7 @@ function DetailsBox_TransitionTokenCheckBox(
       id="is-epsilon-transition"
       name="is-epsilon-transition"
       checked={tokenIsIncluded}
-      ref={input => {
+      ref={(input) => {
         if (input) {
           input.indeterminate = tokenIsIncluded === undefined;
         }
@@ -101,26 +99,24 @@ export default function DetailsBox_TransitionSelection(
 
   const isMultiSelection = tws.length > 1;
 
-  const allEpsilon = tws.every(t => t.isEpsilonTransition);
-  const noneEpsilon = tws.every(t => !t.isEpsilonTransition);
+  const allEpsilon = tws.every((t) => t.isEpsilonTransition);
+  const noneEpsilon = tws.every((t) => !t.isEpsilonTransition);
 
   // Epsilon transitions are handled separately from individual tokens.
   const [isEpsilonTransition, setEpsilonTransition] = useState(
-    noneEpsilon ? false : (allEpsilon || undefined),
+    noneEpsilon ? false : allEpsilon || undefined,
   );
   let updateIsEpsilonTransition = (isEpsilon: boolean) => {
     setEpsilonTransition(isEpsilon);
 
     if (isEpsilon) {
-      tws.forEach(t => {
-        if (t.isEpsilonTransition)
-          return;
+      tws.forEach((t) => {
+        if (t.isEpsilonTransition) return;
         StateManager.setTransitionAcceptsEpsilon(t);
       });
     } else {
-      tws.forEach(t => {
-        if (!t.isEpsilonTransition)
-          return;
+      tws.forEach((t) => {
+        if (!t.isEpsilonTransition) return;
         StateManager.setTransitionDoesntAcceptEpsilon(t);
       });
     }
@@ -132,7 +128,7 @@ export default function DetailsBox_TransitionSelection(
       id="is-epsilon-transition"
       name="is-epsilon-transition"
       checked={isEpsilonTransition}
-      ref={input => {
+      ref={(input) => {
         if (input) {
           input.indeterminate = isEpsilonTransition === undefined;
         }
@@ -145,15 +141,19 @@ export default function DetailsBox_TransitionSelection(
   // update the UI to correctly reflect the current state.
   const [_, currentStackLocation] = useActionStack();
   useEffect(() => {
-    setEpsilonTransition(noneEpsilon ? false : (allEpsilon || undefined));
+    setEpsilonTransition(noneEpsilon ? false : allEpsilon || undefined);
   }, [currentStackLocation]);
 
   return (
     <div className="flex flex-col">
-      <div className="font-medium text-2xl">{isMultiSelection ? "Transitions" : "Transition"}</div>
-      {!isMultiSelection && <div>
-        {srcNode.labelText} to {dstNode.labelText}
-      </div>}
+      <div className="font-medium text-2xl">
+        {isMultiSelection ? "Transitions" : "Transition"}
+      </div>
+      {!isMultiSelection && (
+        <div>
+          {srcNode.labelText} to {dstNode.labelText}
+        </div>
+      )}
       <div className="mt-3 ml-1 mb-1 text-left">Accepted Tokens</div>
       <div className="divide-y mb-3">
         <ListItem title="ε" rightContent={transitionUseEpsilonInput} />

@@ -158,7 +158,7 @@ function App() {
     dfa = StateManager.dfa;
     dfaErrors = dfa.getErrors();
   }, [currentStackLocation]);
-  
+
   let errorBoxes = dfaErrors.map((err) => {
     return (
       <div key={err.errorString()}>

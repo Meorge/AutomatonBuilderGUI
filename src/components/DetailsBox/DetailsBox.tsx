@@ -23,33 +23,37 @@ interface DetailsBoxProps {
  */
 export default function DetailsBox(props: DetailsBoxProps) {
   // seperate the selection into two, nodes and transitions
-  const selectedNodes = props.selection.filter(item => item instanceof NodeWrapper) as NodeWrapper[];
-  const selectedTransitions = props.selection.filter(item => item instanceof TransitionWrapper) as TransitionWrapper[];
+  const selectedNodes = props.selection.filter(
+    (item) => item instanceof NodeWrapper,
+  ) as NodeWrapper[];
+  const selectedTransitions = props.selection.filter(
+    (item) => item instanceof TransitionWrapper,
+  ) as TransitionWrapper[];
 
   let selectionElements = [];
 
   // display a transition editor if at least transition is selected
   if (selectedTransitions.length > 0) {
-    const combinedKey = selectedTransitions.map(t => t.id).join('-');
+    const combinedKey = selectedTransitions.map((t) => t.id).join("-");
     selectionElements.push(
       <DetailsBox_TransitionSelection
         key={combinedKey}
         transitions={selectedTransitions}
-      />
-    )
+      />,
+    );
   }
 
   // display a node editor if at least node is selected
   if (selectedNodes.length > 0) {
-    const combinedKey = selectedNodes.map(node => node.id).join('-');
+    const combinedKey = selectedNodes.map((node) => node.id).join("-");
     selectionElements.unshift(
       <DetailsBox_StateSelection
         key={combinedKey}
         nodeWrappers={selectedNodes}
         startNode={props.startNode}
         setStartNode={props.setStartNode}
-      />
-    )
+      />,
+    );
   }
 
   return (
