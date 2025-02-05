@@ -2,100 +2,100 @@
  * The colors and visual parameters to use when dark mode is disabled.
  */
 export const LightColorScheme = {
-    tentativeTransitionArrowColor: 'red',
-    selectedNodeStrokeColor: '#018ED5',
+  tentativeTransitionArrowColor: "red",
+  selectedNodeStrokeColor: "#018ED5",
 
-    nodeFill: 'white',
-    nodeStrokeColor: 'black',
+  nodeFill: "white",
+  nodeStrokeColor: "black",
 
-    nodeAcceptStrokeColor: 'black',
+  nodeAcceptStrokeColor: "black",
 
-    nodeLabelColor: 'black',
+  nodeLabelColor: "black",
 
-    newConnectionGlowColor: '#2FDFFB',
-    newConnectionShadowOpacity: 1,
-    newConnectionShadowBlur: 10,
+  newConnectionGlowColor: "#2FDFFB",
+  newConnectionShadowOpacity: 1,
+  newConnectionShadowBlur: 10,
 
-    nodeDragDropShadowColor: '#000000',
-    nodeDragDropShadowOpacity: 0.2,
-    nodeDragDropShadowBlur: 10,
+  nodeDragDropShadowColor: "#000000",
+  nodeDragDropShadowOpacity: 0.2,
+  nodeDragDropShadowBlur: 10,
 
-    transitionSelectedArrowColor: 'red',
-    transitionArrowColor: 'black',
-    transitionLabelColor: 'black',
+  transitionSelectedArrowColor: "red",
+  transitionArrowColor: "black",
+  transitionLabelColor: "black",
 
-    gridColor: "lightgrey",
+  gridColor: "lightgrey",
 
-    errorNodeFillColor: 'rgb(254, 226, 225)', // Light red
-    errorNodeStrokeColor: 'rgb(220, 38, 37)', // Dark red
-    errorIconFillColor: 'rgb(220, 38, 37)',   // Dark red
-    errorIconTextColor: 'white',
+  errorNodeFillColor: "rgb(254, 226, 225)", // Light red
+  errorNodeStrokeColor: "rgb(220, 38, 37)", // Dark red
+  errorIconFillColor: "rgb(220, 38, 37)", // Dark red
+  errorIconTextColor: "white",
 };
 
 /**
  * The colors and visual parameters to use when dark mode is enabled.
  */
 export const DarkColorScheme = {
-    tentativeTransitionArrowColor: 'red',
-    selectedNodeStrokeColor: '#018ED5',
+  tentativeTransitionArrowColor: "red",
+  selectedNodeStrokeColor: "#018ED5",
 
-    nodeFill: '#2F2F2F',
-    nodeStrokeColor: '#F0F0F0',
+  nodeFill: "#2F2F2F",
+  nodeStrokeColor: "#F0F0F0",
 
-    nodeAcceptStrokeColor: '#F0F0F0',
+  nodeAcceptStrokeColor: "#F0F0F0",
 
-    nodeLabelColor: 'white',
+  nodeLabelColor: "white",
 
-    newConnectionGlowColor: '#2FDFFB',
-    newConnectionShadowOpacity: 1,
-    newConnectionShadowBlur: 10,
+  newConnectionGlowColor: "#2FDFFB",
+  newConnectionShadowOpacity: 1,
+  newConnectionShadowBlur: 10,
 
-    nodeDragDropShadowColor: '#FFFFFF',
-    nodeDragDropShadowOpacity: 0.3,
-    nodeDragDropShadowBlur: 10,
+  nodeDragDropShadowColor: "#FFFFFF",
+  nodeDragDropShadowOpacity: 0.3,
+  nodeDragDropShadowBlur: 10,
 
-    transitionSelectedArrowColor: 'red',
-    transitionArrowColor: '#E0E0E0',
-    transitionLabelColor: 'white',
+  transitionSelectedArrowColor: "red",
+  transitionArrowColor: "#E0E0E0",
+  transitionLabelColor: "white",
 
-    gridColor: "#303030",
-    
-    errorNodeFillColor: '#4f0203',           
-    errorNodeStrokeColor: 'red',
-    errorIconFillColor: 'red',
-    errorIconTextColor: 'white',
+  gridColor: "#303030",
+
+  errorNodeFillColor: "#4f0203",
+  errorNodeStrokeColor: "red",
+  errorIconFillColor: "red",
+  errorIconTextColor: "white",
 };
 
 /**
  * The colors and visual parameters that can be configured for the color mode.
  */
 export interface ColorScheme {
-    tentativeTransitionArrowColor: string,
-    selectedNodeStrokeColor: string,
+  tentativeTransitionArrowColor: string;
+  selectedNodeStrokeColor: string;
 
-    nodeFill: string,
-    nodeStrokeColor: string,
+  nodeFill: string;
+  nodeStrokeColor: string;
 
-    nodeAcceptStrokeColor: string,
+  nodeAcceptStrokeColor: string;
 
-    nodeLabelColor: string,
+  nodeLabelColor: string;
 
-    newConnectionGlowColor: string,
-    newConnectionShadowOpacity: number,
-    newConnectionShadowBlur: number,
+  newConnectionGlowColor: string;
+  newConnectionShadowOpacity: number;
+  newConnectionShadowBlur: number;
 
-    nodeDragDropShadowColor: string,
-    nodeDragDropShadowOpacity: number,
-    nodeDragDropShadowBlur: number,
+  nodeDragDropShadowColor: string;
+  nodeDragDropShadowOpacity: number;
+  nodeDragDropShadowBlur: number;
 
-    transitionSelectedArrowColor: string,
-    transitionArrowColor: string,
-    transitionLabelColor: string,
+  transitionSelectedArrowColor: string;
+  transitionArrowColor: string;
+  transitionLabelColor: string;
 
-    gridColor: string,
+  gridColor: string;
 
-    errorNodeFillColor: string,
-    errorNodeStrokeColor: string,
-    errorIconFillColor: string,
-    errorIconTextColor: string,
+  errorNodeFillColor: string;
+  errorNodeStrokeColor: string;
+  errorIconFillColor: string;
+  errorIconTextColor: string;
 }

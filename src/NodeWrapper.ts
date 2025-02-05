@@ -1,16 +1,15 @@
-import Konva from 'konva';
-import StateManager, { SerializableState } from './StateManager';
-import { Tool } from './Tool';
-import { Vector2d } from 'konva/lib/types';
-import SelectableObject from './SelectableObject';
-import { v4 as uuidv4 } from 'uuid';
+import Konva from "konva";
+import StateManager, { SerializableState } from "./StateManager";
+import { Tool } from "./Tool";
+import { Vector2d } from "konva/lib/types";
+import SelectableObject from "./SelectableObject";
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * The class that holds node information (label, start node status, etc)
  * and connects it to the visual representation on the screen.
  */
 export default class NodeWrapper extends SelectableObject {
-
   /** The radius of the node circle in the UI. */
   public static readonly NodeRadius = 30;
 
@@ -55,7 +54,7 @@ export default class NodeWrapper extends SelectableObject {
 
   /**
    * Whether or not this node is an accepting node.
-   * 
+   *
    * **NOTE:** This should almost never be directly modified. Instead, use
    * `NodeWrapper.isAcceptNode` (getter/setter).
    */
@@ -63,17 +62,17 @@ export default class NodeWrapper extends SelectableObject {
 
   /**
    * The label text for this node.
-   * 
+   *
    * **NOTE:** This should almost never be directly modified. Instead, use
    * `NodeWrapper.labelText` (getter/setter).
    */
   private _labelText: string = "state";
 
   /** A unique ID which persists for this node.
-   * 
+   *
    * **NOTE:** Use `NodeWrapper.id` (getter) instead to access this.
    */
-  private readonly _id: string
+  private readonly _id: string;
 
   /**
    * A unique ID which persists for this node.
@@ -92,7 +91,7 @@ export default class NodeWrapper extends SelectableObject {
       id: this.id,
       x: this.nodeGroup.x(),
       y: this.nodeGroup.y(),
-      label: this.labelText
+      label: this.labelText,
     };
   }
 
@@ -134,7 +133,7 @@ export default class NodeWrapper extends SelectableObject {
       x: 0,
       y: 0,
       radius: NodeWrapper.NodeRadius * 0.8,
-      fill: 'transparent',
+      fill: "transparent",
       stroke: StateManager.colorScheme.nodeAcceptStrokeColor,
       strokeWidth: 1.5,
       visible: this._isAcceptNode,
@@ -145,8 +144,8 @@ export default class NodeWrapper extends SelectableObject {
       y: (-NodeWrapper.NodeRadius * 2 * 0.75) / 2,
       width: NodeWrapper.NodeRadius * 2 * 0.75,
       height: NodeWrapper.NodeRadius * 2 * 0.75,
-      align: 'center',
-      verticalAlign: 'middle',
+      align: "center",
+      verticalAlign: "middle",
       text: this._labelText,
       fontSize: 15,
       fill: StateManager.colorScheme.nodeLabelColor,
@@ -158,20 +157,20 @@ export default class NodeWrapper extends SelectableObject {
       y: NodeWrapper.NodeRadius - 1,
       radius: 10,
       fill: StateManager.colorScheme.errorIconFillColor,
-      name: 'errorIcon',
+      name: "errorIcon",
       visible: false,
       listening: false,
     });
 
     this.errorText = new Konva.Text({
-      text: '✕',
+      text: "✕",
       fontSize: 14,
       fill: StateManager.colorScheme.errorIconTextColor,
-      align: 'center',
-      verticalAlign: 'middle',
+      align: "center",
+      verticalAlign: "middle",
       width: 20,
       height: 20,
-      name: 'errorText',
+      name: "errorText",
       visible: false,
       listening: false,
     });
@@ -196,12 +195,12 @@ export default class NodeWrapper extends SelectableObject {
     this.nodeGroup.draggable(true);
 
     // Event listeners
-    this.nodeGroup.on('mouseenter', (ev) => this.onMouseEnter.call(this, ev));
-    this.nodeGroup.on('mouseleave', (ev) => this.onMouseLeave.call(this, ev));
-    this.nodeGroup.on('click', (ev) => this.onClick.call(this, ev));
-    this.nodeGroup.on('dragstart', (ev) => this.onDragStart.call(this, ev));
-    this.nodeGroup.on('dragmove', (ev) => this.onDragMove.call(this, ev));
-    this.nodeGroup.on('dragend', (ev) => this.onDragEnd.call(this, ev));
+    this.nodeGroup.on("mouseenter", (ev) => this.onMouseEnter.call(this, ev));
+    this.nodeGroup.on("mouseleave", (ev) => this.onMouseLeave.call(this, ev));
+    this.nodeGroup.on("click", (ev) => this.onClick.call(this, ev));
+    this.nodeGroup.on("dragstart", (ev) => this.onDragStart.call(this, ev));
+    this.nodeGroup.on("dragmove", (ev) => this.onDragMove.call(this, ev));
+    this.nodeGroup.on("dragend", (ev) => this.onDragEnd.call(this, ev));
   }
 
   /**
@@ -221,13 +220,13 @@ export default class NodeWrapper extends SelectableObject {
     let textWidth = tempText.getClientRect().width;
 
     if (textWidth > maxTextWidth && fontSize > 10) {
-      while (textWidth > maxTextWidth && fontSize > 10) { // minimum font size is 10
+      while (textWidth > maxTextWidth && fontSize > 10) {
+        // minimum font size is 10
         fontSize -= 1; // decrement font size
         tempText.fontSize(fontSize); // update tempText font size
         textWidth = tempText.getClientRect().width; // remeasure text width with new font size
       }
-    }
-    else if (textWidth < maxTextWidth && fontSize < 15) {
+    } else if (textWidth < maxTextWidth && fontSize < 15) {
       // Increase font size until the text fits within the maximum width
       while (textWidth < maxTextWidth && fontSize < 15) {
         fontSize += 1; // increment font size
@@ -237,9 +236,9 @@ export default class NodeWrapper extends SelectableObject {
     }
 
     this.nodeLabel.fontSize(fontSize);
-    this.nodeLabel.wrap('word');
-    this.nodeLabel.align('center');
-    this.nodeLabel.verticalAlign('middle');
+    this.nodeLabel.wrap("word");
+    this.nodeLabel.align("center");
+    this.nodeLabel.verticalAlign("middle");
   }
 
   /**
@@ -271,7 +270,7 @@ export default class NodeWrapper extends SelectableObject {
 
   /**
    * Deletes the Konva group that visualizes this node.
-   * 
+   *
    * **NOTE:** If they are destroyed, they will need to be recreated next time
    * we want to place them on the canvas. Chances are this shouldn't need
    * to be called.
@@ -302,10 +301,16 @@ export default class NodeWrapper extends SelectableObject {
    * dragged towards it.
    */
   public enableNewConnectionGlow() {
-    this.nodeBackground.shadowColor(StateManager.colorScheme.newConnectionGlowColor);
+    this.nodeBackground.shadowColor(
+      StateManager.colorScheme.newConnectionGlowColor,
+    );
     this.nodeBackground.shadowOffset({ x: 0, y: 0 });
-    this.nodeBackground.shadowOpacity(StateManager.colorScheme.newConnectionShadowOpacity);
-    this.nodeBackground.shadowBlur(StateManager.colorScheme.newConnectionShadowBlur);
+    this.nodeBackground.shadowOpacity(
+      StateManager.colorScheme.newConnectionShadowOpacity,
+    );
+    this.nodeBackground.shadowBlur(
+      StateManager.colorScheme.newConnectionShadowBlur,
+    );
     this.nodeBackground.shadowEnabled(true);
   }
 
@@ -322,10 +327,16 @@ export default class NodeWrapper extends SelectableObject {
    * "picked up" by the user.
    */
   public enableDragDropShadow() {
-    this.nodeBackground.shadowColor(StateManager.colorScheme.nodeDragDropShadowColor);
+    this.nodeBackground.shadowColor(
+      StateManager.colorScheme.nodeDragDropShadowColor,
+    );
     this.nodeBackground.shadowOffset({ x: 0, y: 3 });
-    this.nodeBackground.shadowOpacity(StateManager.colorScheme.nodeDragDropShadowOpacity);
-    this.nodeBackground.shadowBlur(StateManager.colorScheme.nodeDragDropShadowBlur);
+    this.nodeBackground.shadowOpacity(
+      StateManager.colorScheme.nodeDragDropShadowOpacity,
+    );
+    this.nodeBackground.shadowBlur(
+      StateManager.colorScheme.nodeDragDropShadowBlur,
+    );
     this.nodeBackground.shadowEnabled(true);
   }
 
@@ -333,10 +344,13 @@ export default class NodeWrapper extends SelectableObject {
    * Called whenever the user's mouse enters the node. This is used to
    * highlight the node when it becomes a candidate for having a transition
    * added to it.
-   * @param ev 
+   * @param ev
    */
   public onMouseEnter(ev: Konva.KonvaEventObject<MouseEvent>) {
-    if (StateManager.currentTool === Tool.Transitions && StateManager.tentativeTransitionInProgress) {
+    if (
+      StateManager.currentTool === Tool.Transitions &&
+      StateManager.tentativeTransitionInProgress
+    ) {
       StateManager.tentativeTransitionTarget = this;
       this.enableNewConnectionGlow();
     }
@@ -350,7 +364,10 @@ export default class NodeWrapper extends SelectableObject {
    */
   public onMouseLeave(ev: Konva.KonvaEventObject<MouseEvent>) {
     if (StateManager.currentTool === Tool.Transitions) {
-      if (StateManager.tentativeTransitionInProgress && StateManager.tentativeTransitionTarget === this) {
+      if (
+        StateManager.tentativeTransitionInProgress &&
+        StateManager.tentativeTransitionTarget === this
+      ) {
         StateManager.tentativeTransitionTarget = null;
         this.disableShadowEffects();
       }
@@ -359,7 +376,7 @@ export default class NodeWrapper extends SelectableObject {
 
   /**
    * Called whenever the user starts dragging a node.
-   * @param ev 
+   * @param ev
    */
   public onDragStart(ev: Konva.KonvaEventObject<MouseEvent>) {
     this.lastPos = this.nodeGroup.position();
@@ -368,11 +385,9 @@ export default class NodeWrapper extends SelectableObject {
     // No dragging when in state mode!
     if (StateManager.currentTool === Tool.States) {
       this.nodeGroup.stopDrag();
-    }
-    else if (StateManager.currentTool === Tool.Transitions) {
+    } else if (StateManager.currentTool === Tool.Transitions) {
       StateManager.startTentativeTransition(this);
-    }
-    else if (StateManager.currentTool === Tool.Select) {
+    } else if (StateManager.currentTool === Tool.Select) {
       if (!ev.evt.shiftKey && StateManager.selectedObjects.length === 1) {
         StateManager.deselectAllObjects();
       }
@@ -391,7 +406,7 @@ export default class NodeWrapper extends SelectableObject {
   /**
    * Called whenever a node is dragged. All other selected objects are moved
    * along with the node.
-   * 
+   *
    * If the current tool is the Transition tool, then the tentative transition
    * head is moved instead.
    * @param ev
@@ -400,23 +415,24 @@ export default class NodeWrapper extends SelectableObject {
     if (StateManager.currentTool == Tool.Transitions) {
       this.nodeGroup.position(this.lastPos);
       StateManager.updateTentativeTransitionHead(ev.evt.pageX, ev.evt.pageY);
-    }
-    else if (StateManager.currentTool === Tool.Select) {
-      this.konvaObject.fire('move', ev);
+    } else if (StateManager.currentTool === Tool.Select) {
+      this.konvaObject.fire("move", ev);
       let delta = {
         x: this.konvaObject.x() - this.lastDragPos.x,
         y: this.konvaObject.y() - this.lastDragPos.y,
       };
       this.lastDragPos = this.konvaObject.position();
       // Move all selected objects along with this one!
-      const allOtherSelected = StateManager.selectedObjects.filter((i) => i !== this);
+      const allOtherSelected = StateManager.selectedObjects.filter(
+        (i) => i !== this,
+      );
       allOtherSelected.forEach((obj) => {
         if (obj instanceof NodeWrapper) {
           obj.konvaObject.move({
             x: delta.x,
-            y: delta.y
+            y: delta.y,
           });
-          obj.konvaObject.fire('move', ev);
+          obj.konvaObject.fire("move", ev);
         }
       });
     }
@@ -437,25 +453,27 @@ export default class NodeWrapper extends SelectableObject {
    */
   public onDragEnd() {
     if (StateManager.currentTool === Tool.States) {
-    }
-    else if (StateManager.currentTool === Tool.Select && StateManager.snapToGridEnabled) {
-
+    } else if (
+      StateManager.currentTool === Tool.Select &&
+      StateManager.snapToGridEnabled
+    ) {
       let selected = StateManager.selectedObjects;
-      let nodes = selected.filter(obj => obj instanceof NodeWrapper);
+      let nodes = selected.filter((obj) => obj instanceof NodeWrapper);
 
       let snappedPos: Vector2d = { x: 0, y: 0 };
 
-      nodes.forEach(node => {
+      nodes.forEach((node) => {
         let snapped = (node as NodeWrapper).snapToGrid();
-        if (node === this)
-          snappedPos = snapped;
+        if (node === this) snappedPos = snapped;
       });
 
       StateManager.updateStartNodePosition();
 
       // only add the move to the action stack if our snapped position changed
-      if (Math.abs(this.lastSnappedPos.x - snappedPos.x) > 1e-5 || 
-          Math.abs(this.lastSnappedPos.y - snappedPos.y) > 1e-5) {
+      if (
+        Math.abs(this.lastSnappedPos.x - snappedPos.x) > 1e-5 ||
+        Math.abs(this.lastSnappedPos.y - snappedPos.y) > 1e-5
+      ) {
         this.lastSnappedPos = snappedPos;
         StateManager.completeDragStatesOperation(this.nodeGroup.position());
       }
@@ -490,11 +508,11 @@ export default class NodeWrapper extends SelectableObject {
     // Adjust the snapped position by the scale to get the final position on the stage
     this.setPosition({
       x: snappedX,
-      y: snappedY
+      y: snappedY,
     });
 
     // update all related transitions
-    StateManager.transitions.forEach(transition => {
+    StateManager.transitions.forEach((transition) => {
       if (transition.involvesNode(this)) {
         transition.updatePoints();
       }
@@ -503,7 +521,7 @@ export default class NodeWrapper extends SelectableObject {
     // Redraw the layer to reflect the changes
     this.nodeGroup.getLayer()?.batchDraw();
 
-    return { x: snappedX, y:snappedY };
+    return { x: snappedX, y: snappedY };
   }
 
   /**
@@ -532,7 +550,9 @@ export default class NodeWrapper extends SelectableObject {
     // Updating colors based on the current color scheme
     this.nodeBackground.fill(StateManager.colorScheme.nodeFill);
     this.nodeLabel.fill(StateManager.colorScheme.nodeLabelColor);
-    this.nodeAcceptCircle.stroke(StateManager.colorScheme.nodeAcceptStrokeColor);
+    this.nodeAcceptCircle.stroke(
+      StateManager.colorScheme.nodeAcceptStrokeColor,
+    );
 
     // Updating error icon colors
     this.errorIcon.fill(StateManager.colorScheme.errorIconFillColor);
@@ -550,7 +570,6 @@ export default class NodeWrapper extends SelectableObject {
     this.updateAppearance();
   }
 
-  
   private updateAppearance() {
     // Reset node appearance to default
     this.nodeBackground.fill(StateManager.colorScheme.nodeFill);
@@ -558,7 +577,7 @@ export default class NodeWrapper extends SelectableObject {
     this.nodeBackground.strokeWidth(NodeWrapper.StrokeWidth);
     this.errorIcon.visible(false);
     this.errorText.visible(false);
-  
+
     if (this._isErrorState) {
       // Error state appearance
       this.nodeBackground.fill(StateManager.colorScheme.errorNodeFillColor);
@@ -568,21 +587,23 @@ export default class NodeWrapper extends SelectableObject {
       this.errorIcon.visible(true);
       this.errorText.visible(true);
     }
-  
+
     if (this._isSelected) {
       // Selected state appearance
       // Blue selection stroke (overrides error stroke)
-      this.nodeBackground.stroke(StateManager.colorScheme.selectedNodeStrokeColor);
+      this.nodeBackground.stroke(
+        StateManager.colorScheme.selectedNodeStrokeColor,
+      );
       this.nodeBackground.strokeWidth(NodeWrapper.SelectedStrokeWidth);
     }
-  
-    this.nodeAcceptCircle.stroke(StateManager.colorScheme.nodeAcceptStrokeColor);
+
+    this.nodeAcceptCircle.stroke(
+      StateManager.colorScheme.nodeAcceptStrokeColor,
+    );
     this.nodeAcceptCircle.visible(this._isAcceptNode);
-  
+
     this.nodeLabel.fill(StateManager.colorScheme.nodeLabelColor);
-  
+
     this.nodeGroup.getLayer()?.batchDraw();
   }
-    
-
 }
