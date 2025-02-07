@@ -13,6 +13,11 @@ export default function TestStringWindow() {
     if (result === "Rejected" || result === "Accepted") setResult("");
   }, [JSON.stringify(StateManager.dfa)]);
 
+  useEffect(() => {
+    if (StateManager.dfa.getErrors().length === 0 && result === "Invalid DFA")
+      setResult("");
+  }, [StateManager.dfa.getErrors().length]);
+
   const errorMessages = [
     "Invalid DFA",
     "Invalid Input Tokens",
