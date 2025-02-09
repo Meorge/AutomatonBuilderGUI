@@ -472,7 +472,18 @@ export default class StateManager {
       y = Math.round(y / gridSpacing) * gridSpacing;
     }
 
-    const newStateWrapperName = `q${StateManager._nextStateId++}`;
+    let highestNumber = 0;
+    StateManager._nodeWrappers.forEach((node) => {
+      const match = node.labelText.match(/^q(\d+)$/);
+      if (match === null) return;
+      const num = parseInt(match[1]);
+      if (num >= highestNumber) {
+        StateManager._nextStateId = num + 1;
+        highestNumber = num + 1;
+      }
+    });
+    let newStateWrapperName = `q${StateManager._nextStateId}`;
+
     const newStateWrapper = new NodeWrapper(newStateWrapperName);
     let addNodeForward = (data: CreateNodeActionData) => {
       newStateWrapper.createKonvaObjects(data.x, data.y);
