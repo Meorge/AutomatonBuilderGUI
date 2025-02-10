@@ -210,6 +210,7 @@ export default class TransitionWrapper extends SelectableObject {
 
     this.updateArrow(pointsArray, 0);
     this.updateLabelPosition(centerPtX, centerPtY - 20);
+    this.updateLabelCenterDebugPosition(centerPtX, centerPtY);
   }
 
   /**
