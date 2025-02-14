@@ -2033,7 +2033,7 @@ export default class StateManager {
       return [false, "Invalid 'startState' format."];
     }
 
-    if (json.acceptStates.every((state) => state === undefined)) {
+    if (json.acceptStates === undefined) {
       console.error("Invalid 'acceptStates' format.");
       return [false, "Invalid 'acceptStates' format."];
     }
@@ -2065,8 +2065,7 @@ export default class StateManager {
       transition.source === undefined ||
       transition.dest === undefined ||
       transition.isEpsilonTransition === undefined ||
-      transition.tokens === undefined ||
-      transition.tokens.every((tok) => tok === undefined)
+      transition.tokens === undefined
     ) {
       return false;
     }
