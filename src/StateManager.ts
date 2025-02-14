@@ -1629,9 +1629,7 @@ export default class StateManager {
     });
 
     StateManager._transitionWrappers = StateManager._transitionWrappers.filter(
-      (i) => {
-        !transitionsDependentOnDeletedNode.includes(i);
-      },
+      (i) => !transitionsDependentOnDeletedNode.includes(i),
     );
 
     StateManager._nodeWrappers = StateManager._nodeWrappers.filter(
