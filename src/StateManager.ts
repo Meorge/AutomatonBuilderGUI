@@ -1913,12 +1913,15 @@ export default class StateManager {
 
     const fileText = file.text().then(
       (text) => {
-        StateManager.loadAutomaton(JSON.parse(text));
+        return JSON.parse(text);
       },
       (reject_reason) => {
         console.error("could not get file text, reason was", reject_reason);
+        return null;
       },
     );
+
+    return fileText;
   }
 
   /**
@@ -1987,6 +1990,102 @@ export default class StateManager {
     // Refresh canvas?
 
     this._stage.draw();
+  }
+
+  public static isValidAutomaton(
+    json: SerializableAutomaton,
+  ): [boolean, string] {
+    // for now just console log, not sure how to desiplay window
+    if (
+      !json ||
+      !json.states ||
+      !json.alphabet ||
+      !json.transitions ||
+      !json.startState ||
+      !json.acceptStates
+    ) {
+      console.error("Missing required fields");
+      return [false, "This automaton could not be read."];
+    }
+
+    if (!json.states.every((state) => this.isValidState(state))) {
+      console.error("states not properly formatted");
+      return [false, "This automaton's states could not be read."];
+    }
+
+    if (!json.alphabet.every((token) => this.isValidToken(token))) {
+      console.error("alphabet not properly formatted");
+      return [false, "This automaton's alphabet could not be read."];
+    }
+
+    if (
+      !json.transitions.every((transition) =>
+        this.isValidTransition(transition, json),
+      )
+    ) {
+      console.error("Invalid 'transitions' format.");
+      return [false, "This automaton's transitions could not be read."];
+    }
+
+    if (
+      typeof json.startState !== "string" ||
+      !json.states.some((state) => state.id === json.startState)
+    ) {
+      console.error("Invalid 'startState' format.");
+      return [false, "This automaton's start state could not be read."];
+    }
+
+    if (!this.isArrayOfStrings(json.acceptStates)) {
+      console.error("Invalid 'acceptStates' format.");
+      return [false, "This automaton's accept states could not be read."];
+    }
+
+    return [true, ""];
+  }
+
+  private static isValidState(state: SerializableState): boolean {
+    return (
+      typeof state.id === "string" &&
+      typeof state.x === "number" &&
+      typeof state.y === "number" &&
+      typeof state.label === "string"
+    );
+  }
+
+  private static isValidToken(token: SerializableToken): boolean {
+    return typeof token.id === "string" && typeof token.symbol === "string";
+  }
+
+  private static isValidTransition(
+    transition: SerializableTransition,
+    json: SerializableAutomaton,
+  ): boolean {
+    if (
+      typeof transition.id !== "string" ||
+      typeof transition.source !== "string" ||
+      typeof transition.dest !== "string" ||
+      typeof transition.isEpsilonTransition !== "boolean" ||
+      !this.isArrayOfStrings(transition.tokens)
+    ) {
+      return false;
+    }
+
+    const stateIds = new Set(json.states?.map((state: any) => state.id) || []);
+    const tokenIds = new Set(
+      json.alphabet?.map((token: any) => token.id) || [],
+    );
+
+    return (
+      stateIds.has(transition.source) &&
+      stateIds.has(transition.dest) &&
+      transition.tokens.every((tok) => tokenIds.has(tok))
+    );
+  }
+
+  private static isArrayOfStrings(value: any): boolean {
+    return (
+      Array.isArray(value) && value.every((item) => typeof item === "string")
+    );
   }
 
   /** Sets whether or not dark mode is enabled. */
