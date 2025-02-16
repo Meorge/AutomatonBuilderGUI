@@ -13,7 +13,8 @@ export default function TestStringWindow() {
     if (
       result === "Rejected" ||
       result === "Accepted" ||
-      result === "Invalid DFA"
+      result === "Invalid DFA" ||
+      result === "Invalid Input Tokens"
     )
       setResult("");
   }, [JSON.stringify(StateManager.dfa)]);
