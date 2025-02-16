@@ -2,7 +2,11 @@ const path = require("path");
 
 module.exports = {
   entry: "./src/index.tsx",
-  devtool: "inline-source-map",
+  // Once this is ready for release, swap the commented and uncommented portions of the next two lines.
+  mode: "development",
+  devtool: "eval-cheap-module-source-map",
+  // mode: "production",
+  // devtool: false,
   module: {
     rules: [
       {
