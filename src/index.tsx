@@ -28,6 +28,7 @@ function App() {
   );
   const [startNode, setStartNode] = useState(StateManager.startNode);
   const [isLabelUnique, setIsLabelUnique] = useState(true);
+  const [areTokensUnique, setAreTokensUnique] = useState(true);
   const [_, currentStackLocation] = useActionStack();
 
   // Adds the "confirm close" modal when attempting to close the page.
@@ -123,12 +124,19 @@ function App() {
     (token) => token.symbol.trim() === "",
   );
 
-  // Keep track of if all tokens' labels are unique, every time the
+  // Keep track of if all state labels are unique, every time the
   // list of selected objects changes.
   useEffect(() => {
     const unique = StateManager.areAllLabelsUnique();
     setIsLabelUnique(unique);
   }, [selectedObjects]);
+
+  // Keep track of if all tokens' labels are unique, every time the
+  // list of selected objects changes.
+  useEffect(() => {
+    const unique = StateManager.areAllTokensUnique();
+    setAreTokensUnique(unique);
+  }, [StateManager.alphabet]);
 
   // React state and open/close functions for the "Configure Automaton"
   // modal window.
@@ -220,6 +228,11 @@ function App() {
             <InformationBox infoBoxType={InformationBoxType.Error}>
               Duplicate state labels detected. Each state must have a unique
               label.
+            </InformationBox>
+          )}
+          {!areTokensUnique && (
+            <InformationBox infoBoxType={InformationBoxType.Error}>
+              Duplicate tokens detected. Each token must be a unique character.
             </InformationBox>
           )}
           {emptyStringToken && (
