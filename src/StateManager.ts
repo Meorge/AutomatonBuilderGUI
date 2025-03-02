@@ -1806,6 +1806,15 @@ export default class StateManager {
     return labels.length === uniqueLabels.size;
   }
 
+  /* Returns whether or not all tokens in the alphabet are unique */
+  public static areAllTokensUnique(): boolean {
+    const tokenSymbols = StateManager._alphabet.map((token) =>
+      token.symbol.trim(),
+    );
+    const uniqueSymbols = new Set(tokenSymbols);
+    return uniqueSymbols.size === tokenSymbols.length;
+  }
+
   /** Sets the array of tokens for the automaton. */
   public static set alphabet(newAlphabet: Array<TokenWrapper>) {
     StateManager._alphabet = newAlphabet;
