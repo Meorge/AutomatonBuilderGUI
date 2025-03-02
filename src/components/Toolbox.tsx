@@ -19,6 +19,8 @@ import {
   BsFillArrowRightCircleFill,
   BsCake,
   BsBug,
+  BsChatSquareText,
+  BsChatSquareTextFill,
 } from "react-icons/bs";
 import { TbZoomReset } from "react-icons/tb";
 import { GrGrid } from "react-icons/gr";
@@ -205,6 +207,20 @@ export default function Toolbox(props: React.PropsWithChildren<ToolboxProps>) {
               <BsNodePlusFill />
             ) : (
               <BsNodePlus />
+            )}
+          </div>
+        </ToolButton>
+        <ToolButton
+          tool={Tool.Comment}
+          setCurrentTool={props.setCurrentTool}
+          currentTool={props.currentTool}
+          title="Add Comment Region [C]"
+        >
+          <div className="flex flex-row items-center place-content-center">
+            {props.currentTool === Tool.Comment ? (
+              <BsChatSquareTextFill />
+            ) : (
+              <BsChatSquareText />
             )}
           </div>
         </ToolButton>

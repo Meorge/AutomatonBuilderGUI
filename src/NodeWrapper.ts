@@ -410,8 +410,11 @@ export default class NodeWrapper extends SelectableObject {
     this.lastPos = this.nodeGroup.position();
     this.lastDragPos = this.nodeGroup.position();
 
-    // No dragging when in state mode!
-    if (StateManager.currentTool === Tool.States) {
+    // No dragging when in state or comment mode!
+    if (
+      StateManager.currentTool === Tool.States ||
+      StateManager.currentTool === Tool.Comment
+    ) {
       this.nodeGroup.stopDrag();
     } else if (StateManager.currentTool === Tool.Transitions) {
       StateManager.startTentativeTransition(this);
@@ -456,7 +459,7 @@ export default class NodeWrapper extends SelectableObject {
         (i) => i !== this,
       );
       allOtherSelected.forEach((obj) => {
-        if (obj instanceof NodeWrapper) {
+        if (obj instanceof SelectableObject) {
           obj.konvaObject.move({
             x: delta.x,
             y: delta.y,
