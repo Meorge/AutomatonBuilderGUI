@@ -145,9 +145,7 @@ export default function Toolbox(props: React.PropsWithChildren<ToolboxProps>) {
         StateManager.loadAutomaton(parsedData);
       })
       .catch((response) => {
-        showError(
-          "The file does not contain valid JSON.",
-        );
+        showError("The file does not contain valid JSON.");
       });
   };
 

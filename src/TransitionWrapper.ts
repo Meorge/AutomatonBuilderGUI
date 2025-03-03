@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from "uuid";
  */
 export default class TransitionWrapper extends SelectableObject {
   public static readonly ExtraTransitionArrowPadding = 5;
+  public static readonly LoopTransitionDist = 30;
 
   private arrowObject: Konva.Arrow;
   private labelObject: Konva.Text;
@@ -177,11 +178,36 @@ export default class TransitionWrapper extends SelectableObject {
    */
   handleSameSourceAndDest() {
     const srcPos = this._sourceNode.nodeGroup.position();
-    const ANGLE = 60.0 * (Math.PI / 180.0);
-    const DIST = 30;
+    const DIST = TransitionWrapper.LoopTransitionDist;
 
     const centerPtX = srcPos.x;
     const centerPtY = srcPos.y - NodeWrapper.NodeRadius - DIST * 1.5;
+    const pointsArray = TransitionWrapper.getLoopTransitionPoints(
+      srcPos,
+      centerPtX,
+      centerPtY,
+    );
+
+    this.updateArrow(pointsArray, 0);
+    this.updateLabelPosition(centerPtX, centerPtY - 20);
+    this.updateLabelCenterDebugPosition(centerPtX, centerPtY);
+  }
+
+  /**
+   * Calculates points for the transition arrow in the case where the source
+   * and destination nodes are the same (i.e., a looping transition).
+   * @param srcPos The position of the source node.
+   * @param centerPtX x-val of center point of the arrow's loop (generally srcPos.x).
+   * @param centerPtY y-val of center point of the arrow's loop (generally srcPos.y - NodeWrapper.NodeRadius - DIST * 1.5).
+   * @returns An array of four numbers representing the points in an arrow that represents a loop transition.
+   */
+  static getLoopTransitionPoints(
+    srcPos: { x: number; y: number },
+    centerPtX: number,
+    centerPtY: number,
+  ): number[] {
+    const ANGLE = 60.0 * (Math.PI / 180.0);
+    const DIST = TransitionWrapper.LoopTransitionDist;
 
     const pointsArray = [
       srcPos.x + NodeWrapper.NodeRadius * Math.cos(ANGLE),
@@ -207,10 +233,7 @@ export default class TransitionWrapper extends SelectableObject {
         NodeWrapper.NodeRadius * Math.sin(ANGLE) -
         TransitionWrapper.ExtraTransitionArrowPadding * Math.sin(ANGLE),
     ];
-
-    this.updateArrow(pointsArray, 0);
-    this.updateLabelPosition(centerPtX, centerPtY - 20);
-    this.updateLabelCenterDebugPosition(centerPtX, centerPtY);
+    return pointsArray;
   }
 
   /**

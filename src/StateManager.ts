@@ -1049,6 +1049,20 @@ export default class StateManager {
 
       // Update the points for the tentative transition line
       StateManager._tentConnectionLine.points([0, 0, xDelta, yDelta]);
+    } else if (
+      StateManager.tentativeTransitionTarget ===
+      StateManager._tentativeTransitionSource
+    ) {
+      // Set arrow to preview the loop transition
+      StateManager._tentConnectionLine.points(
+        TransitionWrapper.getLoopTransitionPoints(
+          { x: 0, y: 0 },
+          0,
+          0 -
+            NodeWrapper.NodeRadius -
+            TransitionWrapper.LoopTransitionDist * 1.5,
+        ),
+      );
     } else {
       let dstPos =
         StateManager.tentativeTransitionTarget.nodeGroup.absolutePosition();
