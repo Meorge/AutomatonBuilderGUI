@@ -5,6 +5,15 @@ export function testStringOnAutomata(testString: string): string {
   let myDFA = StateManager.dfa;
   let runner = new DFARunner(myDFA, testString.split(""));
   runner.runUntilConclusion();
+  if (StateManager.checkDebug()) {
+    let runnerdebug = new DFARunner(myDFA, testString.split(""));
+
+    let path = runnerdebug.runUntilConclusionDebug();
+    console.log("done path");
+    console.log(path);
+    StateManager.debugMachine(path);
+  }
+
   let result = runner.getStatus();
   console.log("Testing string:", testString);
 
