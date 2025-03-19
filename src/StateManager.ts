@@ -92,6 +92,7 @@ export default class StateManager {
 
   /** Keeps track of the current file to see if it has had changes without saves. */
   private static clean: boolean = true;
+  private static debugActive: boolean = false;
 
   /** Returns UI configuration information for the current color scheme. */
   public static get colorScheme() {
@@ -117,6 +118,43 @@ export default class StateManager {
     return StateManager.clean;
   }
 
+  /** Marks the file as clean. */
+  static listeners = new Set<() => void>();
+
+  static setDebug() {
+    if (this.debugActive) {
+      StateManager.notifyListeners();
+    }
+
+    StateManager.debugActive = !StateManager.debugActive;
+  }
+
+  static notifyListeners() {
+    Array.from(StateManager.listeners).forEach((listener) => listener());
+  }
+
+  static subscribe(listener: () => void) {
+    StateManager.listeners.add(listener);
+  }
+
+  static unsubscribe(listener: () => void) {
+    StateManager.listeners.delete(listener);
+  }
+  static debugOptions = {
+    Left: -1,
+    Right: 1,
+    KillDebug: -10,
+    Other: 0,
+  } as const;
+
+  /** Returns the the curent clean state of the file */
+
+  public static checkDebug() {
+    return StateManager.debugActive;
+  }
+  public static get debugEnabled(): boolean {
+    return StateManager.debugActive;
+  }
   /** Toggles whether or not nodes snap to the grid. */
   public static toggleSnapToGrid() {
     StateManager._snapToGridEnabled = !StateManager._snapToGridEnabled;
@@ -449,6 +487,7 @@ export default class StateManager {
   private static addStateAtDoubleClickPos(
     evt: Konva.KonvaEventObject<MouseEvent>,
   ) {
+    if (this.debugActive) return;
     if (!StateManager._stage) return;
 
     const stage = StateManager._stage;
@@ -519,6 +558,7 @@ export default class StateManager {
    * @param node The node to remove.
    */
   public static removeNode(node: NodeWrapper) {
+    if (this.debugActive) return;
     // Find all transitions involving this node, save those
     let transitionsInvolvingThisNode = new Set(
       this._transitionWrappers.filter((i) => i.involvesNode(node)),
@@ -560,6 +600,7 @@ export default class StateManager {
 
     let removeNodeBackward = (data: RemoveNodeActionData) => {
       // Add the node itself
+
       StateManager._nodeWrappers.push(data.node);
 
       // Create Konva objects
@@ -597,6 +638,7 @@ export default class StateManager {
    * @param newName The new name to give to the node.
    */
   public static setNodeName(node: NodeWrapper, newName: string) {
+    if (this.debugActive) return;
     let oldName = node.labelText;
 
     let setNodeNameForward = (data: SetNodeNameActionData) => {
@@ -623,6 +665,7 @@ export default class StateManager {
    * @param isAccept Whether or not the given node should be an accepting node.
    */
   public static setNodeIsAccept(node: NodeWrapper, isAccept: boolean) {
+    if (this.debugActive) return;
     let oldValue = node.isAcceptNode;
 
     let setNodeIsAcceptForward = (data: SetNodeIsAcceptActionData) => {
@@ -648,6 +691,7 @@ export default class StateManager {
    * @param node The node to set as the start node.
    */
   public static setNodeIsStart(node: NodeWrapper) {
+    if (this.debugActive) return;
     let oldStart = StateManager._startNode;
 
     let setNodeIsStartForward = (data: SetNodeIsStartActionData) => {
@@ -718,7 +762,7 @@ export default class StateManager {
     }
 
     // https://stackoverflow.com/a/77837006
-    if ((ev.metaKey || ev.ctrlKey) && ev.key == "z") {
+    if ((ev.metaKey || ev.ctrlKey) && ev.key == "z" && !this.debugActive) {
       ev.preventDefault();
 
       if (ev.shiftKey) {
@@ -730,20 +774,20 @@ export default class StateManager {
     }
 
     // **Handle Ctrl+C (Copy)**
-    if ((ev.metaKey || ev.ctrlKey) && ev.key === "c") {
+    if ((ev.metaKey || ev.ctrlKey) && ev.key === "c" && !this.debugActive) {
       ev.preventDefault();
       StateManager.copySelectedObjects();
       return;
     }
 
     // **Handle Ctrl+X (Cut)**
-    if ((ev.metaKey || ev.ctrlKey) && ev.key === "x") {
+    if ((ev.metaKey || ev.ctrlKey) && ev.key === "x" && !this.debugActive) {
       ev.preventDefault();
       StateManager.cutSelectedObjects();
       return;
     }
     // **Handle Ctrl+V (Paste)**
-    if ((ev.metaKey || ev.ctrlKey) && ev.key === "v") {
+    if ((ev.metaKey || ev.ctrlKey) && ev.key === "v" && !this.debugActive) {
       ev.preventDefault();
       StateManager.pasteClipboardObjects();
       return;
@@ -1136,6 +1180,7 @@ export default class StateManager {
    * @param dest The destination node for this transition.
    */
   public static addTransition(source: NodeWrapper, dest: NodeWrapper) {
+    if (this.debugActive) return;
     const newTransition = new TransitionWrapper(source, dest);
 
     let addTransitionForward = (data: AddTransitionActionData) => {
@@ -1167,6 +1212,7 @@ export default class StateManager {
    * @param transition The transition to remove.
    */
   public static removeTransition(transition: TransitionWrapper) {
+    if (this.debugActive) return;
     let removeTransitionForward = (data: RemoveTransitionActionData) => {
       StateManager._transitionWrappers =
         StateManager._transitionWrappers.filter(
@@ -1203,6 +1249,7 @@ export default class StateManager {
     // TODO: logic for removing tokens needs to be modified - right now
     // it looks like it does some checks that we may no longer want, now
     // that we have undo/redo!
+    if (this.debugActive) return;
     const newToken = new TokenWrapper();
     let addTokenForward = (data: AddTokenActionData) => {
       StateManager._alphabet.push(data.token);
@@ -1229,6 +1276,7 @@ export default class StateManager {
    * @param token The token to remove.
    */
   public static removeToken(token: TokenWrapper) {
+    if (this.debugActive) return;
     let transitionsUsingToken = StateManager._transitionWrappers.filter(
       (trans) => trans.hasToken(token),
     );
@@ -1262,6 +1310,7 @@ export default class StateManager {
    * @param newSymbol The new symbol/label for the token.
    */
   public static setTokenSymbol(token: TokenWrapper, newSymbol: string) {
+    if (this.debugActive) return;
     let oldSymbol = token.symbol;
 
     let setTokenSymbolForward = (data: SetTokenSymbolActionData) => {
@@ -1292,6 +1341,7 @@ export default class StateManager {
     transition: TransitionWrapper,
     token: TokenWrapper,
   ) {
+    if (this.debugActive) return;
     let hadTokenBefore = transition.hasToken(token);
     let setTransitionAcceptsTokenForward = (
       data: SetTransitionAcceptsTokenData,
@@ -1329,6 +1379,7 @@ export default class StateManager {
     transition: TransitionWrapper,
     token: TokenWrapper,
   ) {
+    if (this.debugActive) return;
     let hadTokenBefore = transition.hasToken(token);
     let setTransitionDoesntAcceptTokenForward = (
       data: SetTransitionAcceptsTokenData,
@@ -1362,6 +1413,7 @@ export default class StateManager {
    * @param transition The transition to make accept the empty string.
    */
   public static setTransitionAcceptsEpsilon(transition: TransitionWrapper) {
+    if (this.debugActive) return;
     let hadEpsilonBefore = transition.isEpsilonTransition;
 
     let setTransitionAcceptsEpsilonForward = (
@@ -1393,6 +1445,7 @@ export default class StateManager {
   public static setTransitionDoesntAcceptEpsilon(
     transition: TransitionWrapper,
   ) {
+    if (this.debugActive) return;
     let hadEpsilonBefore = transition.isEpsilonTransition;
 
     let setTransitionDoesntAcceptEpsilonForward = (
@@ -1481,6 +1534,7 @@ export default class StateManager {
    * undo/redo safe manner.
    */
   public static deleteAllSelectedObjects() {
+    if (this.debugActive) return;
     if (this._selectedObjects.length === 0) {
       return;
     }
@@ -1632,6 +1686,7 @@ export default class StateManager {
    * @param node The node to remove.
    */
   public static deleteNode(node: NodeWrapper) {
+    if (this.debugActive) return;
     const transitionsDependentOnDeletedNode: Array<TransitionWrapper> = [];
     StateManager._transitionWrappers.forEach((trans) => {
       if (
@@ -1791,6 +1846,87 @@ export default class StateManager {
     StateManager._alphabet.forEach((t) => StateManager.removeToken(t));
     StateManager._nextStateId = 0;
     UndoRedoManager.reset();
+  }
+  static async waitForLeftOrRightKey(): Promise<number> {
+    return new Promise((resolve) => {
+      function keyHandler(event: KeyboardEvent) {
+        if (event.code === "ArrowLeft") {
+          resolve(StateManager.debugOptions.Left);
+          cleanup();
+        } else if (event.code === "ArrowRight") {
+          resolve(StateManager.debugOptions.Right);
+          cleanup();
+        } else if (event.code === "Enter") {
+          resolve(StateManager.debugOptions.KillDebug);
+          cleanup();
+        } else {
+          resolve(StateManager.debugOptions.Other);
+          cleanup();
+        }
+      }
+
+      function buttonHandler() {
+        resolve(StateManager.debugOptions.KillDebug);
+        cleanup();
+      }
+
+      function debugChangeHandler() {
+        resolve(StateManager.debugOptions.KillDebug);
+        cleanup();
+      }
+
+      function cleanup() {
+        window.removeEventListener("keydown", keyHandler);
+        StateManager.unsubscribe(debugChangeHandler);
+        if (testMachineButton) {
+          testMachineButton.removeEventListener("click", buttonHandler);
+        }
+      }
+
+      const testMachineButton = document.getElementById("testMachineButton");
+
+      if (testMachineButton) {
+        testMachineButton.addEventListener("click", buttonHandler);
+      }
+
+      window.addEventListener("keydown", keyHandler);
+      StateManager.subscribe(debugChangeHandler); // Listen for debug mode changes
+    });
+  }
+
+  public static delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+  public static async debugMachine(path: any[]) {
+    let LegalMoveFlag = 1;
+    StateManager.deselectAllObjects();
+    let pos = 0;
+
+    while (1 == 1) {
+      if (pos >= path.length) {
+        pos = path.length - 1;
+        LegalMoveFlag = 0;
+      }
+      if (pos < 0) {
+        pos = 0;
+        LegalMoveFlag = 0;
+      }
+      for (const n of StateManager._nodeWrappers) {
+        if (n.labelText === path[pos] && LegalMoveFlag == 1) {
+          StateManager.deselectAllObjects();
+          await StateManager.delay(100);
+          StateManager.selectObject(n);
+        }
+      }
+      let moveVal = await StateManager.waitForLeftOrRightKey();
+      LegalMoveFlag = 1;
+      if (moveVal == StateManager.debugOptions.KillDebug) {
+        StateManager.deselectAllObjects();
+        break;
+      } else {
+        pos += moveVal;
+      }
+    }
   }
 
   /**
