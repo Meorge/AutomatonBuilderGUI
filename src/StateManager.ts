@@ -1901,28 +1901,28 @@ export default class StateManager {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
   public static async debugMachine(path: any[]) {
-    let flagtest = 1;
+    let LegalMoveFlag = 1;
     StateManager.deselectAllObjects();
     let pos = 0;
 
     while (1 == 1) {
       if (pos >= path.length) {
         pos = path.length - 1;
-        flagtest = 0;
+        LegalMoveFlag = 0;
       }
       if (pos < 0) {
         pos = 0;
-        flagtest = 0;
+        LegalMoveFlag = 0;
       }
       for (const n of StateManager._nodeWrappers) {
-        if (n.labelText === path[pos] && flagtest == 1) {
+        if (n.labelText === path[pos] && LegalMoveFlag == 1) {
           StateManager.deselectAllObjects();
           await StateManager.delay(100);
           StateManager.selectObject(n);
         }
       }
       let moveVal = await StateManager.waitForLeftOrRightKey();
-      flagtest = 1;
+      LegalMoveFlag = 1;
       if (moveVal == StateManager.debugOptions.KillDebug) {
         StateManager.deselectAllObjects();
         break;
