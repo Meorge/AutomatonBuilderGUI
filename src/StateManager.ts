@@ -1850,7 +1850,6 @@ export default class StateManager {
   static async waitForLeftOrRightKey(): Promise<number> {
     return new Promise((resolve) => {
       function keyHandler(event: KeyboardEvent) {
-        console.log("Key detected:", event.code);
         if (event.code === "ArrowLeft") {
           resolve(StateManager.debugOptions.Left);
           cleanup();
@@ -1867,13 +1866,11 @@ export default class StateManager {
       }
 
       function buttonHandler() {
-        console.log("I was clicked");
         resolve(StateManager.debugOptions.KillDebug);
         cleanup();
       }
 
       function debugChangeHandler() {
-        console.log("Debug mode switched, resolving with -10");
         resolve(StateManager.debugOptions.KillDebug);
         cleanup();
       }
