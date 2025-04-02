@@ -22,6 +22,8 @@ export default class NodeWrapper extends SelectableObject {
   /** The Konva object used to draw the node circle. */
   private nodeBackground: Konva.Circle;
 
+  /** The Konva object used to draw the background pickup effect */
+  private nodePickup: Konva.Circle;
   /**
    * The Konva object used to draw the small inner circle on the node,
    * indicating that it is an accept state.
@@ -129,6 +131,16 @@ export default class NodeWrapper extends SelectableObject {
       strokeWidth: NodeWrapper.StrokeWidth,
     });
 
+    this.nodePickup = new Konva.Circle({
+      x: .75,
+      y: 2.5,
+      radius: NodeWrapper.NodeRadius*1.02,
+      fill: StateManager.colorScheme.nodeDragDropShadowColor,
+      stroke: StateManager.colorScheme.nodeDragDropShadowColor,
+      strokeWidth: NodeWrapper.StrokeWidth+1,
+      opacity: 0.0
+    });
+
     this.nodeAcceptCircle = new Konva.Circle({
       x: 0,
       y: 0,
@@ -186,6 +198,7 @@ export default class NodeWrapper extends SelectableObject {
     });
 
     // Add elements to the node group in order
+    this.nodeGroup.add(this.nodePickup);
     this.nodeGroup.add(this.nodeBackground);
     this.nodeGroup.add(this.nodeAcceptCircle);
     this.nodeGroup.add(this.nodeLabel);
@@ -341,6 +354,22 @@ export default class NodeWrapper extends SelectableObject {
   }
 
   /**
+   * Enables the opacity of the nodePickup konva circle to create a shadow effect
+   * currently used instead of enableDragDropShadow due to performance issues
+   */
+  public dragHighlightEffect(){
+    this.nodePickup.opacity(.45);
+}
+
+  /**
+   * Disables the opacity of the nodePickup konva circle to create a shadow effect
+   */
+  public dragHighlightEffectDisable(){
+    this.nodePickup.opacity(0.0);
+
+  }    
+
+  /**
    * Called whenever the user's mouse enters the node. This is used to
    * highlight the node when it becomes a candidate for having a transition
    * added to it.
@@ -395,7 +424,7 @@ export default class NodeWrapper extends SelectableObject {
 
       StateManager.selectedObjects.forEach((obj) => {
         if (obj instanceof NodeWrapper) {
-          obj.enableDragDropShadow();
+          obj.dragHighlightEffect();
         }
       });
 
@@ -412,6 +441,7 @@ export default class NodeWrapper extends SelectableObject {
    * @param ev
    */
   public onDragMove(ev: Konva.KonvaEventObject<MouseEvent>) {
+    this.dragHighlightEffect();
     if (StateManager.currentTool == Tool.Transitions) {
       this.nodeGroup.position(this.lastPos);
       StateManager.updateTentativeTransitionHead(ev.evt.pageX, ev.evt.pageY);
@@ -452,6 +482,7 @@ export default class NodeWrapper extends SelectableObject {
    * and then the movement is added to the action stack.
    */
   public onDragEnd() {
+    this.dragHighlightEffectDisable();
     if (StateManager.currentTool === Tool.States) {
     } else if (
       StateManager.currentTool === Tool.Select &&
@@ -465,6 +496,7 @@ export default class NodeWrapper extends SelectableObject {
       nodes.forEach((node) => {
         let snapped = (node as NodeWrapper).snapToGrid();
         if (node === this) snappedPos = snapped;
+        node.dragHighlightEffectDisable();
       });
 
       StateManager.updateStartNodePosition();
@@ -484,7 +516,7 @@ export default class NodeWrapper extends SelectableObject {
       // Deselect and remove shadow effects from all selected nodes
       StateManager.selectedObjects.forEach((obj) => {
         if (obj instanceof NodeWrapper) {
-          obj.disableShadowEffects();
+          obj.dragHighlightEffectDisable();
         }
       });
 
