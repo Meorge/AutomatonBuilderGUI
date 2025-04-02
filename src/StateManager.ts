@@ -1567,7 +1567,9 @@ export default class StateManager {
     removeData.nodes = selectedNodes;
     removeData.transitions = [
       ...selectedTransitions,
-      ...transitionsInvolvingSelectedNodes,
+      ...transitionsInvolvingSelectedNodes.filter(
+        (transition) => !selectedTransitions.includes(transition),
+      ),
     ];
 
     // Save start node if it's being removed
