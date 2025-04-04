@@ -1,6 +1,6 @@
 name: check-prettier
 run-name: Check code formatting
-on: [push]
+on: [push, pull_request]
 jobs:
   check-prettier:
     runs-on: ubuntu-latest
