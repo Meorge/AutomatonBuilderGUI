@@ -1093,6 +1093,7 @@ export default class StateManager {
 
       // Update the points for the tentative transition line
       StateManager._tentConnectionLine.points([0, 0, xDelta, yDelta]);
+      StateManager._tentConnectionLine.dash([20, 20]);
     } else if (
       StateManager.tentativeTransitionTarget ===
       StateManager._tentativeTransitionSource
@@ -1107,6 +1108,8 @@ export default class StateManager {
             TransitionWrapper.LoopTransitionDist * 1.5,
         ),
       );
+      StateManager._tentConnectionLine.tension(0.5);
+      StateManager._tentConnectionLine.dash([9, 9]);
     } else {
       let dstPos =
         StateManager.tentativeTransitionTarget.nodeGroup.absolutePosition();
@@ -1131,6 +1134,7 @@ export default class StateManager {
         xDestRelativeToSrc - xUnitTowardsSrc,
         yDestRelativeToSrc - yUnitTowardsSrc,
       ]);
+      StateManager._tentConnectionLine.dash([20, 20]);
     }
   }
 
