@@ -880,16 +880,16 @@ export default class StateManager {
         // Redoing the paste action, reuse nodes and transitions
         data.nodes.forEach((node) => {
           StateManager._nodeWrappers.push(node);
-          StateManager._nodeLayer.add(node.nodeGroup);
+StateManager._nodeLayer.add(node.nodeGroup);
         });
 
-        data.transitions.forEach((transition) => {
+        data.transitions.forEach((transition)=>{
           StateManager._transitionWrappers.push(transition);
           StateManager._transitionLayer.add(transition.konvaGroup);
         });
       }
 
-      StateManager._nodeLayer?.draw();
+      StateManager._nodeLayer?.draw()   ;
       StateManager._transitionLayer?.draw();
       StateManager.updateTransitions();
 
