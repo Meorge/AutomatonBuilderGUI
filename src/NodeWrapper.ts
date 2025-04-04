@@ -132,13 +132,13 @@ export default class NodeWrapper extends SelectableObject {
     });
 
     this.nodePickup = new Konva.Circle({
-      x: .75,
+      x: 0.75,
       y: 2.5,
-      radius: NodeWrapper.NodeRadius*1.02,
+      radius: NodeWrapper.NodeRadius * 1.02,
       fill: StateManager.colorScheme.nodeDragDropShadowColor,
       stroke: StateManager.colorScheme.nodeDragDropShadowColor,
-      strokeWidth: NodeWrapper.StrokeWidth+1,
-      opacity: 0.0
+      strokeWidth: NodeWrapper.StrokeWidth + 1,
+      opacity: 0.0,
     });
 
     this.nodeAcceptCircle = new Konva.Circle({
@@ -357,17 +357,16 @@ export default class NodeWrapper extends SelectableObject {
    * Enables the opacity of the nodePickup konva circle to create a shadow effect
    * currently used instead of enableDragDropShadow due to performance issues
    */
-  public dragHighlightEffect(){
-    this.nodePickup.opacity(.45);
-}
+  public dragHighlightEffect() {
+    this.nodePickup.opacity(0.45);
+  }
 
   /**
    * Disables the opacity of the nodePickup konva circle to create a shadow effect
    */
-  public dragHighlightEffectDisable(){
+  public dragHighlightEffectDisable() {
     this.nodePickup.opacity(0.0);
-
-  }    
+  }
 
   /**
    * Called whenever the user's mouse enters the node. This is used to
