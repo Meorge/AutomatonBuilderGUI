@@ -79,9 +79,7 @@ export default function Toolbox(props: React.PropsWithChildren<ToolboxProps>) {
     StateManager.toggleSnapToGrid();
     setIsSnapActive(!isSnapActive); // Toggle the local UI state
   };
-  const [isDebugActive, setIsDebugActive] = useState(
-    StateManager.debugEnabled,
-  );
+  const [isDebugActive, setIsDebugActive] = useState(StateManager.debugEnabled);
   const handleToggleDebug = () => {
     StateManager.setDebug();
     setIsDebugActive(!isDebugActive);
