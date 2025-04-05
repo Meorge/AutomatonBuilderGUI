@@ -466,7 +466,7 @@ export default class StateManager {
     let thingUnderMouse = StateManager._stage.getIntersection(
       StateManager._stage.getPointerPosition(),
     );
-    if (!thingUnderMouse) {
+    if (!thingUnderMouse && !evt.evt.shiftKey) {
       StateManager.deselectAllObjects();
     }
   }
