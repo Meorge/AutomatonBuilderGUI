@@ -660,29 +660,42 @@ export default class StateManager {
 
   /**
    * Pushes an action to the action stack that sets the accept status of the
-   * given node.
-   * @param node The node to set the accept status of.
-   * @param isAccept Whether or not the given node should be an accepting node.
+   * given nodes.
+   * @param nodes The nodes to set the accept status of.
+   * @param isAccept Whether or not the given nodes should be an accepting node.
    */
-  public static setNodeIsAccept(node: NodeWrapper, isAccept: boolean) {
+  public static setNodesIsAccept(nodes: NodeWrapper[], isAccept: boolean) {
     if (this.debugActive) return;
-    let oldValue = node.isAcceptNode;
+    let oldValues = nodes.map((node) => node.isAcceptNode);
 
-    let setNodeIsAcceptForward = (data: SetNodeIsAcceptActionData) => {
-      data.node.isAcceptNode = data.newValue;
+    let setNodesIsAcceptForward = (data: SetNodesIsAcceptActionData) => {
+      data.nodes.forEach((node) => {
+        node.isAcceptNode = data.newValue;
+      });
     };
 
-    let setNodeIsAcceptBackward = (data: SetNodeIsAcceptActionData) => {
-      data.node.isAcceptNode = data.oldValue;
+    let setNodesIsAcceptBackward = (data: SetNodesIsAcceptActionData) => {
+      data.nodes.forEach((node, i) => {
+        node.isAcceptNode = data.oldValues[i];
+      });
     };
-    let setNodeIsAcceptAction = new Action(
-      "setNodeIsAccept",
-      `Mark "${node.labelText}" as ${isAccept ? "Accepting" : "Rejecting"}`,
-      setNodeIsAcceptForward,
-      setNodeIsAcceptBackward,
-      { oldValue: oldValue, newValue: isAccept, node: node },
+
+    let actionStackLabel;
+
+    if (nodes.length == 1) {
+      actionStackLabel = `Mark "${nodes[0].labelText}" as ${isAccept ? "Accepting" : "Rejecting"}`;
+    } else {
+      actionStackLabel = `Mark ${nodes.length} selected states as ${isAccept ? "Accepting" : "Rejecting"}`;
+    }
+
+    let setNodesIsAcceptAction = new Action(
+      "setNodesIsAccept",
+      actionStackLabel,
+      setNodesIsAcceptForward,
+      setNodesIsAcceptBackward,
+      { oldValues: oldValues, newValue: isAccept, nodes: nodes },
     );
-    UndoRedoManager.pushAction(setNodeIsAcceptAction);
+    UndoRedoManager.pushAction(setNodesIsAcceptAction);
   }
 
   /**
@@ -2503,16 +2516,16 @@ class SetNodeNameActionData extends ActionData {
   public node: NodeWrapper;
 }
 
-/** Holds the data associated with a "set node is accept node" action. */
-class SetNodeIsAcceptActionData extends ActionData {
-  /** Whether or not the node was an accept node before this action. */
-  public oldValue: boolean;
+/** Holds the data associated with a "set nodes is accept node" action. */
+class SetNodesIsAcceptActionData extends ActionData {
+  /** Whether or not the old nodes were an accept node before this action. */
+  public oldValues: boolean[];
 
-  /** Whether or not the node was an accept node after this action. */
+  /** Whether or not the nodes were an accept node after this action. */
   public newValue: boolean;
 
-  /** The node to set the accept status of in this action. */
-  public node: NodeWrapper;
+  /** The nodes to set the accept status of in this action. */
+  public nodes: NodeWrapper[];
 }
 
 /** Holds the data associated with a "set node as start node" action. */
