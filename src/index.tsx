@@ -20,6 +20,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import AutomatonElementError from "../node_modules/automaton-kit/lib/errors/AutomatonElementError";
 import NodeWrapper from "./NodeWrapper";
 import { useActionStack } from "./utilities/ActionStackUtilities";
+import { GrTest } from "react-icons/gr";
+import TestCasesPanel from "./components/TestCasesPanel";
 
 function App() {
   const [currentTool, setCurrentTool] = useState(Tool.States);
@@ -30,6 +32,12 @@ function App() {
   const [isLabelUnique, setIsLabelUnique] = useState(true);
   const [areTokensUnique, setAreTokensUnique] = useState(true);
   const [_, currentStackLocation] = useActionStack();
+  const [testsPanelOpen, setTestsPanelOpen] = useState(false);
+
+  // React state and open/close functions for the "Tests" panel
+  const toggleTestsPanel = () => {
+    setTestsPanelOpen(!testsPanelOpen);
+  };
 
   // Adds the "confirm close" modal when attempting to close the page.
   // Solution from this stackoverflow page:
@@ -187,19 +195,20 @@ function App() {
     <div className={useDarkMode ? "dark" : ""}>
       <NodeView />
       <div className="flex flex-row h-screen text-center">
-        <FloatingPanel heightPolicy="min" style={{ width: "300px" }}>
-          <DetailsBox
-            selection={selectedObjects}
-            startNode={startNode}
-            setStartNode={setStartNode}
-          />
+        <div className="overflow-y-auto">
+          <FloatingPanel heightPolicy="min" style={{ width: "300px" }}>
+            <DetailsBox
+              selection={selectedObjects}
+              startNode={startNode}
+              setStartNode={setStartNode}
+            />
 
-          <div className="max-h-96 overflow-y-auto">
-            <AnimatePresence>{errorBoxes}</AnimatePresence>
-          </div>
+            <div className="max-h-96 overflow-y-auto">
+              <AnimatePresence>{errorBoxes}</AnimatePresence>
+            </div>
 
-          {/* Example error message boxes commented out */}
-          {/*
+            {/* Example error message boxes commented out */}
+            {/*
                     <InformationBox infoBoxType={InformationBoxType.Error}>
                         State "q0" has multiple transitions for token "a"
                     </InformationBox>
@@ -223,45 +232,57 @@ function App() {
                     </InformationBox>
                     */}
 
-          <TestStringWindow />
-          {!isLabelUnique && (
-            <InformationBox infoBoxType={InformationBoxType.Error}>
-              Duplicate state labels detected. Each state must have a unique
-              label.
-            </InformationBox>
-          )}
-          {!areTokensUnique && (
-            <InformationBox infoBoxType={InformationBoxType.Error}>
-              Duplicate tokens detected. Each token must be a unique character.
-            </InformationBox>
-          )}
-          {emptyStringToken && (
-            <InformationBox infoBoxType={InformationBoxType.Error}>
-              Invalid token: Empty string detected.
-            </InformationBox>
-          )}
+            <TestStringWindow />
+            {!isLabelUnique && (
+              <InformationBox infoBoxType={InformationBoxType.Error}>
+                Duplicate state labels detected. Each state must have a unique
+                label.
+              </InformationBox>
+            )}
+            {!areTokensUnique && (
+              <InformationBox infoBoxType={InformationBoxType.Error}>
+                Duplicate tokens detected. Each token must be a unique
+                character.
+              </InformationBox>
+            )}
+            {emptyStringToken && (
+              <InformationBox infoBoxType={InformationBoxType.Error}>
+                Invalid token: Empty string detected.
+              </InformationBox>
+            )}
 
-          <div className="flex flex-col items-center mt-4">
-            <button
-              className="rounded-full p-2 m-1 mx-2 block bg-amber-500 text-white text-center"
-              onClick={openConfigWindow}
-            >
-              <div className="flex flex-row items-center place-content-center mx-2">
-                <BsGearFill className="mr-1" />
-                Configure Automaton
-              </div>
-            </button>
-            <button
-              className="rounded-full p-2 m-1 mx-2 block bg-gray-500 text-white text-center"
-              onClick={toggleDarkMode}
-            >
-              <div className="flex flex-row items-center place-content-center mx-2">
-                <BsMoonFill className="mr-1" />
-                Dark Mode
-              </div>
-            </button>
-          </div>
-        </FloatingPanel>
+            <div className="flex flex-col items-center mt-4">
+              <button
+                className="rounded-full p-2 m-1 mx-2 block bg-amber-500 text-white text-center"
+                onClick={openConfigWindow}
+              >
+                <div className="flex flex-row items-center place-content-center mx-2">
+                  <BsGearFill className="mr-1" />
+                  Configure Automaton
+                </div>
+              </button>
+              <button
+                className="rounded-full p-2 m-1 mx-2 block bg-cyan-400 dark:bg-cyan-600 text-white text-center"
+                onClick={toggleTestsPanel}
+              >
+                <div className="flex flex-row items-center place-content-center mx-2">
+                  <GrTest className="mr-1" />
+                  Tests
+                </div>
+              </button>
+              <button
+                className="rounded-full p-2 m-1 mx-2 block bg-gray-500 text-white text-center"
+                onClick={toggleDarkMode}
+              >
+                <div className="flex flex-row items-center place-content-center mx-2">
+                  <BsMoonFill className="mr-1" />
+                  Dark Mode
+                </div>
+              </button>
+            </div>
+          </FloatingPanel>
+          {testsPanelOpen && <TestCasesPanel />}
+        </div>
 
         <FloatingPanel heightPolicy="min" style={{ width: "250px" }}>
           <DetailsBox_ActionStackViewer />
