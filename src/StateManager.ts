@@ -1,4 +1,5 @@
 import NodeWrapper from "./NodeWrapper";
+import CommentRegion from "./CommentRegion";
 import { Tool } from "./Tool";
 import Konva from "konva";
 import TransitionWrapper from "./TransitionWrapper";
@@ -37,11 +38,16 @@ export default class StateManager {
   /** Holds all of the transition wrappers in the automaton. */
   private static _transitionWrappers: Array<TransitionWrapper> = [];
 
+  /** Holds all of the comment regions in the grid */
+  private static _commentRegions: Array<CommentRegion> = [];
+
   /** Holds all of the tokens in the automaton. */
   private static _alphabet: Array<TokenWrapper> = [];
 
   /** Holds all of the currently selected objects (nodes and transitions). */
   private static _selectedObjects: Array<SelectableObject> = [];
+
+  private static _resizeComment: CommentRegion | null = null;
 
   /**
    * When the user is in the process of creating a transition, holds the
@@ -72,6 +78,9 @@ export default class StateManager {
 
   /** The layer of the Konva stage where transitions are drawn. */
   private static _transitionLayer: Konva.Layer | null = null;
+
+  /** The layer of the Konva stage where comment regions are drawn */
+  private static _commentLayer: Konva.Layer | null = null;
 
   /** The layer of the Konva stage where the grid is drawn. */
   private static _gridLayer: Konva.Layer | null = null;
@@ -178,6 +187,7 @@ export default class StateManager {
     this._startNode = null;
     this._nodeWrappers = [];
     this._transitionWrappers = [];
+    this._commentRegions = [];
 
     Konva.hitOnDragEnabled = true;
 
@@ -197,6 +207,7 @@ export default class StateManager {
     this._nodeLayer = new Konva.Layer();
     this._transitionLayer = new Konva.Layer();
     this._gridLayer = new Konva.Layer();
+    this._commentLayer = new Konva.Layer();
     this._stage.add(this._gridLayer);
     this.drawGrid(); // Draw the initial grid
 
@@ -236,8 +247,23 @@ export default class StateManager {
     });
     this._transitionLayer.add(this._startStateLine);
 
+    this._stage.add(this._commentLayer);
     this._stage.add(this._transitionLayer);
     this._stage.add(this._nodeLayer);
+
+    this._stage.on("mousemove", () => {
+      if (StateManager._resizeComment == null) {
+        return;
+      }
+      StateManager._resizeComment.resize();
+    });
+    this._stage.on("mouseup", (e) => {
+      if (StateManager._resizeComment == null) {
+        return;
+      }
+      e.target.getStage().container().style.cursor = "default";
+      StateManager.endResizeCommentOperation();
+    });
 
     addEventListener("keydown", this.onKeyDown);
     addEventListener("resize", this.handleResize);
@@ -456,6 +482,11 @@ export default class StateManager {
     StateManager._currentTool = tool;
   }
 
+  /** Gets the resize comment. */
+  public static get resizeComment() {
+    return StateManager._resizeComment;
+  }
+
   /** Called when the user pans the view. */
   private static onDragMove(evt: Konva.KonvaEventObject<MouseEvent>) {
     StateManager.drawGrid();
@@ -478,7 +509,84 @@ export default class StateManager {
   private static onDoubleClick(evt: Konva.KonvaEventObject<MouseEvent>) {
     if (StateManager.currentTool == Tool.States) {
       StateManager.addStateAtDoubleClickPos(evt);
+    } else if (StateManager.currentTool == Tool.Comment) {
+      StateManager.addCommentAtDoubleClickPos(evt);
     }
+  }
+
+  /** Transforms a vector from absolute to stage space (assumes _stage is a valid Konva.Stage) */
+  private static toStageSpace(vec: Vector2d): Vector2d {
+    // Convert the pointer position to the stage's coordinate space
+    const scale = StateManager._stage.scaleX(); // Assuming uniform scaling for X and Y
+    const stagePos = StateManager._stage.position();
+
+    // Adjusting for the stage's position and scale
+    let x = (vec.x - stagePos.x) / scale;
+    let y = (vec.y - stagePos.y) / scale;
+
+    return {
+      x: (vec.x - stagePos.x) / scale,
+      y: (vec.y - stagePos.y) / scale,
+    };
+  }
+
+  /** Snaps a stage space vector to the grid */
+  private static snapStageVectorToGrid(vec: Vector2d): Vector2d {
+    const gridSpacing = 50; // Define your grid spacing value here
+
+    // No need to normalize the coordinates here since they're already in "stage space"
+    return {
+      x: Math.round(vec.x / gridSpacing) * gridSpacing,
+      y: Math.round(vec.y / gridSpacing) * gridSpacing,
+    };
+  }
+
+  /**
+   * Pushes an action to the action stack that adds a comment region to the automaton.
+   */
+  private static addCommentAtDoubleClickPos(
+    evt: Konva.KonvaEventObject<MouseEvent>,
+  ) {
+    if (!StateManager._stage) return;
+
+    const stage = StateManager._stage;
+    const pointerPosition = stage.getPointerPosition();
+    if (!pointerPosition) return;
+
+    let pos = StateManager.toStageSpace(pointerPosition);
+
+    // Snap to grid if enabled
+    if (StateManager._snapToGridEnabled) {
+      pos = StateManager.snapStageVectorToGrid(pos);
+    }
+
+    const newCommentRegion = new CommentRegion();
+    let addCommentForward = (data: CreateCommentActionData) => {
+      newCommentRegion.createKonvaObjects(
+        data.x,
+        data.y,
+        CommentRegion.InitialWidth,
+        CommentRegion.InitialHeight,
+      );
+      StateManager._commentRegions.push(newCommentRegion);
+      StateManager._commentLayer?.add(newCommentRegion.nodeGroup);
+      StateManager._commentLayer?.draw();
+
+      data.commentRegion = newCommentRegion;
+    };
+
+    let addCommentBackward = (data: CreateCommentActionData) => {
+      this.deleteCommentRegion(data.commentRegion);
+    };
+
+    let addCommentAction = new Action(
+      "addCommentRegion",
+      `Add Comment Region`,
+      addCommentForward,
+      addCommentBackward,
+      { x: pos.x, y: pos.y, commentRegion: null },
+    );
+    UndoRedoManager.pushAction(addCommentAction);
   }
 
   /**
@@ -494,21 +602,11 @@ export default class StateManager {
     const pointerPosition = stage.getPointerPosition();
     if (!pointerPosition) return;
 
-    // Convert the pointer position to the stage's coordinate space
-    const scale = stage.scaleX(); // Assuming uniform scaling for X and Y
-    const stagePos = stage.position();
-
-    // Adjusting for the stage's position and scale
-    let x = (pointerPosition.x - stagePos.x) / scale;
-    let y = (pointerPosition.y - stagePos.y) / scale;
+    let pos = StateManager.toStageSpace(pointerPosition);
 
     // Snap to grid if enabled
     if (StateManager._snapToGridEnabled) {
-      const gridSpacing = 50; // Define your grid spacing value here
-
-      // No need to normalize the coordinates here since they're already in "stage space"
-      x = Math.round(x / gridSpacing) * gridSpacing;
-      y = Math.round(y / gridSpacing) * gridSpacing;
+      pos = StateManager.snapStageVectorToGrid(pos);
     }
 
     let highestNumber = 0;
@@ -547,7 +645,7 @@ export default class StateManager {
       `Add "${newStateWrapperName}"`,
       addNodeForward,
       addNodeBackward,
-      { x: x, y: y, node: null },
+      { x: pos.x, y: pos.y, node: null },
     );
     UndoRedoManager.pushAction(addNodeAction);
   }
@@ -757,6 +855,64 @@ export default class StateManager {
     StateManager._startStateLine.absolutePosition(
       StateManager._startNode.nodeGroup.absolutePosition(),
     );
+  }
+
+  public static setCommentRegionColor(
+    comments: CommentRegion[],
+    newColor: string,
+  ) {
+    let oldColors = comments.map((c) => c.color);
+
+    let setColorForward = (data: SetCommentsColorActionData) => {
+      data.comments.forEach((c) => {
+        c.color = data.newColor;
+      });
+    };
+
+    let setColorBackward = (data: SetCommentsColorActionData) => {
+      data.comments.forEach((c, i) => {
+        c.color = data.oldColors[i];
+      });
+    };
+
+    let setCommentsColorAction = new Action(
+      "setCommentRegionColor",
+      `Set ${comments.length} comments color`,
+      setColorForward,
+      setColorBackward,
+      { oldColors, newColor, comments },
+    );
+
+    UndoRedoManager.pushAction(setCommentsColorAction);
+  }
+
+  public static setCommentRegionText(
+    comments: CommentRegion[],
+    newText: string,
+  ) {
+    let oldTexts = comments.map((c) => c.text);
+
+    let setTextForward = (data: SetCommentsTextActionData) => {
+      data.comments.forEach((c) => {
+        c.text = data.newText;
+      });
+    };
+
+    let setTextBackward = (data: SetCommentsTextActionData) => {
+      data.comments.forEach((c, i) => {
+        c.text = data.oldTexts[i];
+      });
+    };
+
+    let setCommentsTextAction = new Action(
+      "setCommentRegionText",
+      `Set ${comments.length} comments text`,
+      setTextForward,
+      setTextBackward,
+      { oldTexts, newText, comments },
+    );
+
+    UndoRedoManager.pushAction(setCommentsTextAction);
   }
 
   /**
@@ -1574,6 +1730,11 @@ export default class StateManager {
       (obj) => obj instanceof TransitionWrapper,
     ) as TransitionWrapper[];
 
+    // Copy selected comments
+    const selectedComments = this._selectedObjects.filter(
+      (obj) => obj instanceof CommentRegion,
+    ) as CommentRegion[];
+
     // Create an action to remove the selected objects
     let removeData = new RemoveNodeActionDataMulti();
 
@@ -1584,11 +1745,15 @@ export default class StateManager {
         (transition) => !selectedTransitions.includes(transition),
       ),
     ];
+    removeData.comments = selectedComments;
 
     // Save start node if it's being removed
     removeData.wasStartNode = removeData.nodes.includes(StateManager.startNode);
 
-    let totalObjects = removeData.nodes.length + removeData.transitions.length;
+    let totalObjects =
+      removeData.nodes.length +
+      removeData.transitions.length +
+      removeData.comments.length;
     let actionDescription = `Delete ${totalObjects} Object${totalObjects !== 1 ? "s" : ""}`;
 
     let performRemoveForward = (data: RemoveNodeActionDataMulti) => {
@@ -1631,8 +1796,15 @@ export default class StateManager {
         }
       });
 
+      // Remove comment regions
+      StateManager._commentRegions = StateManager._commentRegions.filter(
+        (comment) => !data.comments.includes(comment),
+      );
+      data.comments.forEach((comment) => comment.nodeGroup.remove());
+
       StateManager._nodeLayer?.draw();
       StateManager._transitionLayer?.draw();
+      StateManager._commentLayer?.draw();
       StateManager.updateTransitions();
 
       // Deselect all objects
@@ -1640,6 +1812,12 @@ export default class StateManager {
     };
 
     let performRemoveBackward = (data: RemoveNodeActionDataMulti) => {
+      // Add comment regions back
+      StateManager._commentRegions.push(...data.comments);
+      data.comments.forEach((comment) =>
+        StateManager._commentLayer.add(comment.nodeGroup),
+      );
+
       // Add nodes back
       data.nodes.forEach((node) => {
         StateManager._nodeWrappers.push(node);
@@ -1679,6 +1857,7 @@ export default class StateManager {
 
       StateManager._nodeLayer?.draw();
       StateManager._transitionLayer?.draw();
+      StateManager._commentLayer?.draw();
       StateManager.updateTransitions();
     };
 
@@ -1730,6 +1909,19 @@ export default class StateManager {
     if (node == StateManager._startNode) {
       StateManager.startNode = null;
     }
+  }
+
+  /**
+   * Immediately deletes the given commentRegion from the automaton
+   *
+   * **NOTE:** This method is *not* undo/redo safe.
+   * @param comment The CommentRegion to remove.
+   */
+  public static deleteCommentRegion(comment: CommentRegion) {
+    const index = StateManager._commentRegions.indexOf(comment);
+    if (index > -1) StateManager._commentRegions.splice(index, 1);
+
+    comment.nodeGroup.remove();
   }
 
   /**
@@ -2274,6 +2466,7 @@ export default class StateManager {
 
     this._nodeWrappers.forEach((n) => n.updateColorScheme());
     this._transitionWrappers.forEach((t) => t.updateColorScheme());
+    this._commentRegions.forEach((c) => c.updateColorScheme());
 
     // We need to re-trigger the "selected object" drawing code
     // for selected objects
@@ -2378,6 +2571,116 @@ export default class StateManager {
     );
 
     UndoRedoManager.pushAction(moveNodesAction, false);
+  }
+
+  /** The initial position of one of the comment regions when comments are dragged. */
+  private static _dragCommentsStartPosition: Vector2d | null = null;
+
+  /**
+   * Stores the initial position of one of the comments being dragged. Use for
+   * undo / redo operations for moving comment regions.
+   * @param startPos The initial position of one of the comments.
+   */
+  public static startDragCommentsOperation(startPos: Vector2d) {
+    this._dragCommentsStartPosition = startPos;
+  }
+
+  /**
+   * Pushes an action to the action stack that moves the selected comments
+   * by a certain amount.
+   * @param finalPos The final position of the same comment as was used for
+   * `StateManager.startDragCommentsOperation` at the beginning of this drag
+   * operation.
+   */
+  public static completeDragCommentsOperation(finalPos: Vector2d) {
+    let startPos = this._dragCommentsStartPosition;
+    let endPos = finalPos;
+    let delta: Vector2d = {
+      x: endPos.x - startPos.x,
+      y: endPos.y - startPos.y,
+    };
+
+    let moveCommentsForward = (data: MoveCommentsActionData) => {
+      data.comments.forEach((comment) => {
+        comment.setPosition({
+          x: comment.nodeGroup.position().x + delta.x,
+          y: comment.nodeGroup.position().y + delta.y,
+        });
+      });
+    };
+
+    let moveCommentsBackward = (data: MoveCommentsActionData) => {
+      data.comments.forEach((comment) => {
+        comment.setPosition({
+          x: comment.nodeGroup.position().x - delta.x,
+          y: comment.nodeGroup.position().y - delta.y,
+        });
+      });
+    };
+
+    let moveCommentsAction = new Action(
+      "moveComments",
+      `Move ${this.selectedObjects.length} Comments`,
+      moveCommentsForward,
+      moveCommentsBackward,
+      { delta: delta, comments: [...this.selectedObjects] },
+    );
+
+    UndoRedoManager.pushAction(moveCommentsAction, false);
+  }
+
+  /** The initial position of the comment region when resized. */
+  private static _resizeCommentStartPosition: Vector2d | null = null;
+
+  /** The initial size of the comment region when resized. */
+  private static _resizeCommentStartSize: Vector2d | null = null;
+
+  public static startResizeCommentOperation(comment: CommentRegion) {
+    comment.nodeGroup.draggable(false);
+    StateManager._resizeComment = comment;
+    StateManager._resizeCommentStartSize = comment.getSize();
+    StateManager._resizeCommentStartPosition = comment.konvaObject.position();
+  }
+
+  public static endResizeCommentOperation() {
+    let endSize = StateManager._resizeComment.getSize();
+    let endPos = StateManager._resizeComment.konvaObject.position();
+
+    let resizeCommentForward = (data: ResizeCommentActionData) => {
+      data.comment.konvaObject.position(endPos);
+      data.comment.setSize(endSize);
+    };
+
+    let resizeCommentBackward = (data: ResizeCommentActionData) => {
+      data.comment.konvaObject.position(data.oldPos);
+      data.comment.setSize(data.oldSize);
+    };
+
+    let resizeCommentAction = new Action(
+      "resizeComment",
+      `Resize Comment`,
+      resizeCommentForward,
+      resizeCommentBackward,
+      {
+        oldPos: StateManager._resizeCommentStartPosition,
+        oldSize: StateManager._resizeCommentStartSize,
+        comment: StateManager._resizeComment,
+      },
+    );
+
+    UndoRedoManager.pushAction(resizeCommentAction, false);
+
+    StateManager._resizeComment.nodeGroup.draggable(true);
+    StateManager._resizeComment.resizing = {
+      left: false,
+      right: false,
+      up: false,
+      down: false,
+    };
+
+    // make sure comment stays selected
+    StateManager.selectObject(StateManager._resizeComment);
+    StateManager._resizeComment = null;
   }
 
   /**
@@ -2490,6 +2793,9 @@ class RemoveNodeActionDataMulti extends ActionData {
 
   /** The transitions removed in this action. */
   public transitions: TransitionWrapper[] = [];
+
+  /** The comment regions removed in this action. */
+  public comments: CommentRegion[] = [];
 
   /** Whether any of the nodes removed were the start node. */
   public wasStartNode: boolean = false;
@@ -2607,4 +2913,59 @@ class CutActionData extends ActionData {
 
   /** Whether any of the nodes removed were the start node. */
   public wasStartNode: boolean = false;
+}
+
+/** Holds the data associated with a "create comment" action. */
+class CreateCommentActionData extends ActionData {
+  /** The X coordinate where the comment region is created. */
+  public x: number;
+
+  /** The Y coordinate where the comment region is created. */
+  public y: number;
+
+  /** The comment region created in this action. */
+  public commentRegion: CommentRegion;
+}
+
+/** Holds the data associated with a "move comments" action. */
+class MoveCommentsActionData extends ActionData {
+  /** The amount by which comments were moved in this action. */
+  public delta: Vector2d;
+
+  /** The comments moved in this action. */
+  public comments: CommentRegion[];
+}
+
+/** Holds the data associated with a "set comments color" action. */
+class SetCommentsColorActionData extends ActionData {
+  /** The old colors before the action was taken */
+  public oldColors: string[];
+
+  /** The old color after the action was taken */
+  public newColor: string;
+
+  public comments: CommentRegion[];
+}
+
+/** Holds the data associated with a "set comments text" action. */
+class SetCommentsTextActionData extends ActionData {
+  /** The old texts before the action was taken */
+  public oldTexts: string[];
+
+  /** The old text after the action was taken */
+  public newText: string;
+
+  public comments: CommentRegion[];
+}
+
+/** Holds the data associated with a "resize comment" action. */
+class ResizeCommentActionData extends ActionData {
+  /** The old size before the action was taken */
+  public oldSize: Vector2d;
+
+  /** The old position before the action was taken */
+  public oldPos: Vector2d;
+
+  /** The comment being resized in this action. */
+  public comment: CommentRegion;
 }

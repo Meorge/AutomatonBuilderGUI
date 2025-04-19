@@ -1,9 +1,11 @@
 import NodeWrapper from "../../NodeWrapper";
 import SelectableObject from "../../SelectableObject";
 import TransitionWrapper from "../../TransitionWrapper";
+import CommentRegion from "../../CommentRegion";
 import DetailsBox_NoSelection from "./DetailsBox_NoSelection";
 import DetailsBox_StateSelection from "./DetailsBox_StateSelection";
 import DetailsBox_TransitionSelection from "./DetailsBox_TransitionSelection";
+import DetailsBox_CommentSelection from "./DetailsBox_CommentSelection";
 
 interface DetailsBoxProps {
   selection: Array<SelectableObject>;
@@ -29,10 +31,13 @@ export default function DetailsBox(props: DetailsBoxProps) {
   const selectedTransitions = props.selection.filter(
     (item) => item instanceof TransitionWrapper,
   ) as TransitionWrapper[];
+  const selectedComments = props.selection.filter(
+    (item) => item instanceof CommentRegion,
+  ) as CommentRegion[];
 
   let selectionElements = [];
 
-  // display a transition editor if at least transition is selected
+  // display a transition editor if at least one transition is selected
   if (selectedTransitions.length > 0) {
     const combinedKey = selectedTransitions.map((t) => t.id).join("-");
     selectionElements.push(
@@ -43,7 +48,7 @@ export default function DetailsBox(props: DetailsBoxProps) {
     );
   }
 
-  // display a node editor if at least node is selected
+  // display a node editor if at least one node is selected
   if (selectedNodes.length > 0) {
     const combinedKey = selectedNodes.map((node) => node.id).join("-");
     selectionElements.unshift(
@@ -52,6 +57,17 @@ export default function DetailsBox(props: DetailsBoxProps) {
         nodeWrappers={selectedNodes}
         startNode={props.startNode}
         setStartNode={props.setStartNode}
+      />,
+    );
+  }
+
+  // display a comment region editor if at least one comment is selected
+  if (selectedComments.length > 0) {
+    const combinedKey = selectedComments.map((comment) => comment.id).join("-");
+    selectionElements.push(
+      <DetailsBox_CommentSelection
+        key={combinedKey}
+        comments={selectedComments}
       />,
     );
   }

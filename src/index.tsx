@@ -70,6 +70,8 @@ function App() {
         setCurrentTool(Tool.Transitions);
       } else if (ev.code === "KeyS") {
         setCurrentTool(Tool.Select);
+      } else if (ev.code === "KeyR") {
+        setCurrentTool(Tool.Comment);
       }
     });
   }, []);
