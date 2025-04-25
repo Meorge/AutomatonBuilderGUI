@@ -265,9 +265,23 @@ export default class StateManager {
       StateManager.endResizeCommentOperation();
     });
 
+    if (this.storageAvailable()) {
+      if (localStorage.getItem("darkmode")) {
+        //console.log("darkmode was on...");
+        StateManager.useDarkMode = true;
+      } else {
+        //console.log("no darkmode detected");
+      }
+    }
+
     addEventListener("keydown", this.onKeyDown);
     addEventListener("resize", this.handleResize);
     StateManager.makeClean();
+  }
+
+  public static storageAvailable() {
+    console.log(typeof Storage.toString());
+    return typeof Storage != "undefined";
   }
 
   /** Gets the array of transitions for the automaton. */
@@ -2463,6 +2477,10 @@ export default class StateManager {
     StateManager.makeClean();
     // Save new value
     this._useDarkMode = val;
+    // Save value to storage
+    if (StateManager.storageAvailable()) {
+      localStorage.setItem("darkmode", val.toString());
+    }
 
     this._nodeWrappers.forEach((n) => n.updateColorScheme());
     this._transitionWrappers.forEach((t) => t.updateColorScheme());
