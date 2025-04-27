@@ -265,22 +265,12 @@ export default class StateManager {
       StateManager.endResizeCommentOperation();
     });
 
-    if (this.storageAvailable()) {
-      if (localStorage.getItem("darkmode")) {
-        //console.log("darkmode was on...");
-        StateManager.useDarkMode = true;
-      } else {
-        //console.log("no darkmode detected");
-      }
-    }
-
     addEventListener("keydown", this.onKeyDown);
     addEventListener("resize", this.handleResize);
     StateManager.makeClean();
   }
 
   public static storageAvailable() {
-    console.log(typeof Storage.toString());
     return typeof Storage != "undefined";
   }
 
