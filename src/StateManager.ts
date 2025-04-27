@@ -270,6 +270,10 @@ export default class StateManager {
     StateManager.makeClean();
   }
 
+  public static storageAvailable() {
+    return typeof Storage != "undefined";
+  }
+
   /** Gets the array of transitions for the automaton. */
   public static get transitions(): Array<TransitionWrapper> {
     return StateManager._transitionWrappers;
@@ -2463,6 +2467,10 @@ export default class StateManager {
     StateManager.makeClean();
     // Save new value
     this._useDarkMode = val;
+    // Save value to storage
+    if (StateManager.storageAvailable()) {
+      localStorage.setItem("darkmode", val.toString());
+    }
 
     this._nodeWrappers.forEach((n) => n.updateColorScheme());
     this._transitionWrappers.forEach((t) => t.updateColorScheme());

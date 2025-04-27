@@ -23,7 +23,7 @@ import { useActionStack } from "./utilities/ActionStackUtilities";
 import { GrTest } from "react-icons/gr";
 import TestCasesPanel from "./components/TestCasesPanel";
 
-function App() {
+function App({ defaultDarkMode }: { defaultDarkMode: boolean }) {
   const [currentTool, setCurrentTool] = useState(Tool.States);
   const [selectedObjects, setSelectedObjects] = useState(
     new Array<SelectableObject>(),
@@ -159,7 +159,7 @@ function App() {
   };
 
   // React state and enable/disable functions for dark mode.
-  const [useDarkMode, setDarkMode] = useState(false);
+  const [useDarkMode, setDarkMode] = useState(defaultDarkMode);
   const toggleDarkMode = () => {
     setDarkMode(!useDarkMode);
   };
@@ -312,6 +312,15 @@ function App() {
   );
 }
 
+// If the browser has storage available, and the user has saved their
+// dark mode preference, then use that by default.
+let defaultDarkMode = false;
+if (StateManager.storageAvailable()) {
+  if (localStorage.getItem("darkmode") == "true") {
+    defaultDarkMode = true;
+  }
+}
+
 const domNode = document.getElementById("react-root");
 const root = createRoot(domNode);
-root.render(<App />);
+root.render(<App defaultDarkMode={defaultDarkMode} />);
