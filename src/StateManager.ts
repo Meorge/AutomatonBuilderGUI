@@ -1448,13 +1448,11 @@ export default class StateManager {
   }
 
   /**
-   * Pushes an action to the action stack that adds an array of new tokens
-   * with symbols to the automaton.
+   * Pushes actions to the action stack that add new tokens with symbols to
+   * the automaton.
+   * @param newSymbols An array of symbols to create new tokens for.
    */
   public static addTokensWithSymbols(newSymbols: string[]) {
-    // Clear TODO: logic for removing tokens is now handled with undo/redo actions
-    const tokensData: addTokensWithSymbolsActionData[] = [];
-
     for (let i = 0; i < newSymbols.length; i++) {
       const newSymbol = newSymbols[i];
 
@@ -1473,11 +1471,11 @@ export default class StateManager {
       newToken.symbol = newSymbol;
 
       // Define forward and backward actions for undo/redo
-      let addTokenForward = (data: addTokensWithSymbolsActionData) => {
+      let addTokenForward = (data: AddTokenActionData) => {
         StateManager._alphabet.push(data.token);
       };
 
-      let addTokenBackward = (data: addTokensWithSymbolsActionData) => {
+      let addTokenBackward = (data: AddTokenActionData) => {
         StateManager._alphabet = StateManager._alphabet.filter(
           (i) => i !== data.token,
         );
@@ -1494,9 +1492,6 @@ export default class StateManager {
 
       // Push the action to the undo/redo manager
       UndoRedoManager.pushAction(addTokenAction);
-
-      // Add the token data to the tokensData array
-      tokensData.push({ token: newToken, oldSymbol: "", newSymbol: newSymbol });
     }
   }
 
@@ -2929,18 +2924,6 @@ class SetTransitionAcceptsTokenData extends ActionData {
 class AddTokenActionData extends ActionData {
   /** The token created in this action. */
   public token: TokenWrapper;
-}
-
-/** Holds the data associated with an "add tokens with symbols to automaton" action. */
-class addTokensWithSymbolsActionData extends ActionData {
-  /** The token created in this action. */
-  public token: TokenWrapper;
-
-  /** The symbol for this token before this action. */
-  public oldSymbol: string;
-
-  /** The symbol for this token after this action. */
-  public newSymbol: string;
 }
 
 /** Holds the data associated with a "remove token from automaton" action. */

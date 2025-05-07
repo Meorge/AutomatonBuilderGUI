@@ -46,8 +46,7 @@ function ListItem_TokenEditor(
         <input
           className="focus:outline-none bg-transparent grow"
           type="text"
-          minLength={1}
-          maxLength={1}
+          onChange={(e) => updateTokenSymbol(e.target.value)}
           placeholder="Token symbol"
           value={tokenSymbol}
         ></input>
@@ -114,7 +113,7 @@ function AlphabetList() {
             <input
               className="focus:outline-none bg-transparent grow"
               type="text"
-              placeholder="q1,q2,q3"
+              placeholder="a,b,c"
               value={inputValue}
               onChange={handleChange}
               onKeyUp={handleKeyUp}
