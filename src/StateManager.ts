@@ -1448,6 +1448,54 @@ export default class StateManager {
   }
 
   /**
+   * Pushes actions to the action stack that add new tokens with symbols to
+   * the automaton.
+   * @param newSymbols An array of symbols to create new tokens for.
+   */
+  public static addTokensWithSymbols(newSymbols: string[]) {
+    for (let i = 0; i < newSymbols.length; i++) {
+      const newSymbol = newSymbols[i];
+
+      // Check if the symbol is empty
+      if (newSymbol === "") {
+        continue;
+      }
+
+      // Check if the symbol already exists
+      if (StateManager._alphabet.some((token) => token.symbol === newSymbol)) {
+        continue;
+      }
+
+      // Create a new token and set its symbol
+      const newToken = new TokenWrapper();
+      newToken.symbol = newSymbol;
+
+      // Define forward and backward actions for undo/redo
+      let addTokenForward = (data: AddTokenActionData) => {
+        StateManager._alphabet.push(data.token);
+      };
+
+      let addTokenBackward = (data: AddTokenActionData) => {
+        StateManager._alphabet = StateManager._alphabet.filter(
+          (i) => i !== data.token,
+        );
+      };
+
+      // Create an action for adding the token
+      let addTokenAction = new Action(
+        "addToken",
+        `Add Token "${newSymbol}"`,
+        addTokenForward,
+        addTokenBackward,
+        { token: newToken, oldSymbol: "", newSymbol: newSymbol },
+      );
+
+      // Push the action to the undo/redo manager
+      UndoRedoManager.pushAction(addTokenAction);
+    }
+  }
+
+  /**
    * Pushes an action to the action stack that removes the given token from
    * the automaton.
    * @param token The token to remove.

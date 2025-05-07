@@ -46,11 +46,9 @@ function ListItem_TokenEditor(
         <input
           className="focus:outline-none bg-transparent grow"
           type="text"
-          minLength={1}
-          maxLength={1}
+          onChange={(e) => updateTokenSymbol(e.target.value)}
           placeholder="Token symbol"
           value={tokenSymbol}
-          onChange={(e) => updateTokenSymbol(e.target.value)}
         ></input>
       </CoreListItem_Left>
 
@@ -73,11 +71,27 @@ function ListItem_TokenEditor(
  * @returns
  */
 function AlphabetList() {
-  const [alphabet, setAlphabet] = useState(StateManager.alphabet);
+  const [alphabet, setAlphabet] = useState<TokenWrapper[]>([]);
+  const [inputValue, setInputValue] = useState("");
 
   function addTokenToAlphabet() {
-    StateManager.addToken();
+    const newSymbols = new Set(
+      inputValue.split(",").map((token) => token.trim()),
+    );
+    const newSymbolsArray = Array.from(newSymbols);
+    StateManager.addTokensWithSymbols(newSymbolsArray);
+    setInputValue("");
   }
+
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      addTokenToAlphabet();
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+  };
 
   // Track the action stack's location so that any undo/redo commands will
   // update the UI to correctly reflect the current state.
@@ -94,18 +108,19 @@ function AlphabetList() {
     <>
       <div className="mt-3 ml-1 mb-1">Input Alphabet</div>
       <div className="divide-y">
-        {tokenWrapperElements}
         <CoreListItem>
           <CoreListItem_Left>
-            <button
-              className="text-blue-500 dark:text-blue-400 flex flex-row items-center"
-              onClick={addTokenToAlphabet}
-            >
-              <BsPlusCircleFill className="mr-1" />
-              Add Token
-            </button>
+            <input
+              className="focus:outline-none bg-transparent grow"
+              type="text"
+              placeholder="a,b,c"
+              value={inputValue}
+              onChange={handleChange}
+              onKeyUp={handleKeyUp}
+            />
           </CoreListItem_Left>
         </CoreListItem>
+        {tokenWrapperElements}
       </div>
     </>
   );
