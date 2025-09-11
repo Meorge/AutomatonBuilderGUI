@@ -198,7 +198,7 @@ function App({ defaultDarkMode }: { defaultDarkMode: boolean }) {
       <NodeView />
       <div className="flex flex-row h-screen text-center">
         <div className="overflow-y-auto">
-          <FloatingPanel heightPolicy="min" style={{ width: "300px" }}>
+          <FloatingPanel heightPolicy="screen" style={{ width: "300px" }}>
             <DetailsBox
               selection={selectedObjects}
               startNode={startNode}
@@ -286,12 +286,15 @@ function App({ defaultDarkMode }: { defaultDarkMode: boolean }) {
           {testsPanelOpen && <TestCasesPanel />}
         </div>
 
-        <FloatingPanel heightPolicy="min" style={{ width: "250px" }}>
-          <DetailsBox_ActionStackViewer />
+        <FloatingPanel heightPolicy="screen">
+          <Toolbox currentTool={currentTool} setCurrentTool={setCurrentTool} />
         </FloatingPanel>
 
-        <FloatingPanel heightPolicy="min">
-          <Toolbox currentTool={currentTool} setCurrentTool={setCurrentTool} />
+        {/*Separates the left and right panels */}
+        <div className="grow"></div>
+
+        <FloatingPanel heightPolicy="screen" style={{ width: "250px" }}>
+          <DetailsBox_ActionStackViewer />
         </FloatingPanel>
       </div>
       {
