@@ -880,7 +880,7 @@ export default class StateManager {
       });
     };
 
-    let maybeS = this.selectedObjects.length == 1 ? "" : "s";
+    let maybeS = comments.length == 1 ? "" : "s";
     let setCommentsColorAction = new Action(
       "setCommentRegionColor",
       `Set Color Of ${comments.length} Comment${maybeS}`,
@@ -910,7 +910,7 @@ export default class StateManager {
       });
     };
 
-    let maybeS = this.selectedObjects.length == 1 ? "" : "s";
+    let maybeS = comments.length == 1 ? "" : "s";
     let setCommentsTextAction = new Action(
       "setCommentRegionText",
       `Set Text Of ${comments.length} Comment${maybeS}`,
