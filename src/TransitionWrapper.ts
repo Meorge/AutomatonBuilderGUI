@@ -369,7 +369,10 @@ export default class TransitionWrapper extends SelectableObject {
    * @param ev
    */
   public onClick(ev: Konva.KonvaEventObject<MouseEvent>) {
-    if (StateManager.currentTool === Tool.Select) {
+    if (
+      StateManager.currentTool === Tool.Select ||
+      StateManager.currentTool === Tool.Transitions
+    ) {
       // If shift isn't being held, then clear all previous selection
       if (!ev.evt.shiftKey) {
         StateManager.deselectAllObjects();
