@@ -23,6 +23,7 @@ export const LightColorScheme = {
   transitionSelectedArrowColor: "red",
   transitionArrowColor: "black",
   transitionLabelColor: "black",
+  transitionLabelStrokeColor: "white",
 
   gridColor: "lightgrey",
 
@@ -57,6 +58,7 @@ export const DarkColorScheme = {
   transitionSelectedArrowColor: "red",
   transitionArrowColor: "#E0E0E0",
   transitionLabelColor: "white",
+  transitionLabelStrokeColor: "black",
 
   gridColor: "#303030",
 
@@ -91,6 +93,7 @@ export interface ColorScheme {
   transitionSelectedArrowColor: string;
   transitionArrowColor: string;
   transitionLabelColor: string;
+  transitionLabelStrokeColor: string;
 
   gridColor: string;
 

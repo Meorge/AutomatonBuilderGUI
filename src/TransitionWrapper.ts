@@ -119,7 +119,11 @@ export default class TransitionWrapper extends SelectableObject {
       verticalAlign: "middle",
       text: "label here",
       fontSize: 20,
+      stroke: StateManager.colorScheme.transitionLabelStrokeColor,
       fill: StateManager.colorScheme.transitionLabelColor,
+      strokeWidth: 3.5,
+      fillAfterStrokeEnabled: true,
+      lineJoin: "round",
     });
 
     this.konvaGroup.add(this.arrowObject);
@@ -483,5 +487,8 @@ export default class TransitionWrapper extends SelectableObject {
     this.arrowObject.fill(StateManager.colorScheme.transitionArrowColor);
     this.arrowObject.stroke(StateManager.colorScheme.transitionArrowColor);
     this.labelObject.fill(StateManager.colorScheme.transitionLabelColor);
+    this.labelObject.stroke(
+      StateManager.colorScheme.transitionLabelStrokeColor,
+    );
   }
 }
